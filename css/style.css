@@ -2182,7 +2182,7 @@ pre .javascript .function {
   overflow: hidden;
   white-space: nowrap;
 /* top left corner */
-  position: absolute;
+  position: fixed;
   left: -50px;
   top: 40px;
 /* 45 deg ccw rotation */
