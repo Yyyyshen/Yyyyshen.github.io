@@ -3,7 +3,7 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>Yshen&#39;s Blog</title>
+  <title>Yshen&#39;s  Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   
@@ -12,16 +12,16 @@
   <meta name="description" content="Done is better than Perfect">
 <meta name="keywords" content="yshen,blog">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Yshen&#39;s Blog">
+<meta property="og:title" content="Yshen&#39;s  Blog">
 <meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="Yshen&#39;s Blog">
+<meta property="og:site_name" content="Yshen&#39;s  Blog">
 <meta property="og:description" content="Done is better than Perfect">
 <meta property="og:locale" content="default">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Yshen&#39;s Blog">
+<meta name="twitter:title" content="Yshen&#39;s  Blog">
 <meta name="twitter:description" content="Done is better than Perfect">
   
-    <link rel="alternate" href="/atom.xml" title="Yshen&#39;s Blog" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Yshen&#39;s  Blog" type="application/atom+xml">
   
 
   
@@ -245,13 +245,16 @@
     
 
     
-      <div id="homelogo" class="homelogo"> 
+      <div id="homelogo" class="homelogo" style="background: rgba(255,255,255,1);"> 
     
 
         
-          
-            <img id="homelogoimg" src="/css/images/homelogo.jpg">
-          
+          <div class="homelogoback" style="border: 1px solid #404040;">
+            <h1><a href="#content" id="logo">Yshen&#39;s  Blog</a></h1>
+            <h3>Done is better than Perfect</h3>
+            <h5>Yshen</h5>
+            <!-- <p><a href="https://github.com/iTimeTraveler" target="_blank">Github</a></p> -->
+          </div>
         
     
     </div>
@@ -263,17 +266,14 @@
  <!-- home_logo_image居中 -->
  
     <script>
-        var img = new Image();
         var homelogodiv = document.getElementById("homelogo");
-        img.src = document.getElementById("homelogoimg").src;
-        img.onload=function(){
-          if (img.width > document.body.clientWidth) {
-            document.getElementById("homelogoimg").style.width = document.body.clientWidth + "px";
-            homelogodiv.style.marginLeft = document.body.clientWidth * -0.5 + "px";
-          } else {
-            homelogodiv.style.marginLeft = img.width * -0.5 + "px";
-          }
-        };
+        if (document.all.homelogo.offsetWidth > document.body.clientWidth) {
+          homelogodiv.style.width = document.body.clientWidth + "px";
+          homelogodiv.style.marginLeft = document.body.clientWidth * -0.5 + "px";
+        } else {
+          homelogodiv.style.width = homelogodiv.clientWidth  + "px";
+          homelogodiv.style.marginLeft = (homelogodiv.clientWidth)  * -0.5 + "px";
+        }
     </script>
   
 
@@ -366,7 +366,7 @@ Quick StartCreate a new post1$ hexo new "My New Post...
   <div class="container">
       	<div class="row">
 	      <p> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/iTimeTraveler/hexo-theme-hiker" target="_blank">Hexo-theme-hiker</a> </p>
-	      <p id="copyRightEn">Copyright &copy; 2018 - 2018 Yshen&#39;s Blog All Rights Reserved.</p>
+	      <p id="copyRightEn">Copyright &copy; 2018 - 2018 Yshen&#39;s  Blog All Rights Reserved.</p>
 	      
 	      
     		<p class="busuanzi_uv">
@@ -517,7 +517,7 @@ Quick StartCreate a new post1$ hexo new "My New Post...
         </div>
          <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
           <div class="panel-body">
-            Yshen&#39;s Blog
+            Yshen&#39;s  Blog
           </div>
           <div class="panel-body">
             Copyright © 2018 Yshen All Rights Reserved.
