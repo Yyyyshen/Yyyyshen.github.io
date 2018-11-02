@@ -2184,7 +2184,7 @@ pre .javascript .function {
 /* top left corner */
   position: fixed;
   left: -50px;
-  top: 40px;
+  top: 20px;
 /* 45 deg ccw rotation */
   -webkit-transform: rotate(-45deg);
   -moz-transform: rotate(-45deg);
