@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>对gradle的浅显理解 | Yshen&#39;s  Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="Gradle">
+  
+  
+  
+  
+  <meta name="description" content="刚开始学安卓一直觉得Gradle这个东西很神秘，也很麻烦。以至于写了很久的安卓之后对Gradle还是一点都不懂，只知道可以方便的引入第三方库，至于其他行的配置，就更只是眼熟。光能写代码却不懂编译用的工具，这好像不太合适，索性买了本书专门研究了下。看完做下笔记，记录对它的理解。 一、Gradle1、GroovyGradle基于groovy语言，这是一个兼容Java的扩展语言。语法非常灵活。环境可以在">
+<meta name="keywords" content="Gradle">
+<meta property="og:type" content="article">
+<meta property="og:title" content="对Gradle的浅显理解">
+<meta property="og:url" content="http://yshen.me/2018/11/25/Gradle/index.html">
+<meta property="og:site_name" content="Yshen&#39;s  Blog">
+<meta property="og:description" content="刚开始学安卓一直觉得Gradle这个东西很神秘，也很麻烦。以至于写了很久的安卓之后对Gradle还是一点都不懂，只知道可以方便的引入第三方库，至于其他行的配置，就更只是眼熟。光能写代码却不懂编译用的工具，这好像不太合适，索性买了本书专门研究了下。看完做下笔记，记录对它的理解。 一、Gradle1、GroovyGradle基于groovy语言，这是一个兼容Java的扩展语言。语法非常灵活。环境可以在">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-11-25T16:13:01.124Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="对Gradle的浅显理解">
+<meta name="twitter:description" content="刚开始学安卓一直觉得Gradle这个东西很神秘，也很麻烦。以至于写了很久的安卓之后对Gradle还是一点都不懂，只知道可以方便的引入第三方库，至于其他行的配置，就更只是眼熟。光能写代码却不懂编译用的工具，这好像不太合适，索性买了本书专门研究了下。看完做下笔记，记录对它的理解。 一、Gradle1、GroovyGradle基于groovy语言，这是一个兼容Java的扩展语言。语法非常灵活。环境可以在">
+  
+    <link rel="alternate" href="/atom.xml" title="Yshen&#39;s  Blog" type="application/atom+xml">
+  
+
+  
+
+  <link rel="icon" href="/css/images/mylogo.jpg">
+  <link rel="apple-touch-icon" href="/css/images/mylogo.jpg">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="/js/jquery-3.1.1.min.js"></script>
+  <script src="/js/bootstrap.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css">
+
+  
+    <link rel="stylesheet" href="/css/dialog.css">
+  
+
+  
+
+  
+    <link rel="stylesheet" href="/css/header-post.css">
+  
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/vdonate.css">
+  
+
+</head>
+</html>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+  <div id="container">
+    <div id="wrap">
+      
+        <header>
+
+    <div id="allheader" class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="navbar-inner">
+          
+          <div class="container"> 
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            
+              <a class="brand" style="
+                 margin-top: 0px;" href="#" data-toggle="modal" data-target="#myModal">
+                  <img width="124px" height="124px" alt="Hike News" src="/css/images/mylogo.jpg">
+              </a>
+            
+            
+            <div class="navbar-collapse collapse">
+              <ul class="hnav navbar-nav">
+                
+                  <li> <a class="main-nav-link" href="/">Home</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/archives">Archives</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/categories">Categories</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/tags">Tags</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/about">About</a> </li>
+                
+                  <li><div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div></li>
+            </ul></div>
+          </div>
+                
+      </div>
+    </div>
+
+</header>
+
+
+
+      
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-Gradle" style="width: 75%; float:left;" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div id="articleInner" class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      对Gradle的浅显理解
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2018/11/25/Gradle/" class="article-date">
+	  <time datetime="2018-11-25T14:29:50.000Z" itemprop="datePublished">2018-11-25</time>
+	</a>
+
+      
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+	<a class="article-views">
+	<span id="busuanzi_container_page_pv">
+		PV:<span id="busuanzi_value_page_pv"></span>
+	</span>
+	</a>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><em>刚开始学安卓一直觉得Gradle这个东西很神秘，也很麻烦。以至于写了很久的安卓之后对Gradle还是一点都不懂，只知道可以方便的引入第三方库，至于其他行的配置，就更只是眼熟。光能写代码却不懂编译用的工具，这好像不太合适，索性买了本书专门研究了下。看完做下笔记，记录对它的理解。</em></p>
+<h2 id="一、Gradle"><a href="#一、Gradle" class="headerlink" title="一、Gradle"></a>一、Gradle</h2><h3 id="1、Groovy"><a href="#1、Groovy" class="headerlink" title="1、Groovy"></a>1、Groovy</h3><p>Gradle基于groovy语言，这是一个兼容Java的扩展语言。语法非常灵活。环境可以在虚拟机中安装linux进行搭建，便于练习。</p>
+<h3 id="2、任务（Task）"><a href="#2、任务（Task）" class="headerlink" title="2、任务（Task）"></a>2、任务（Task）</h3><p>Gradle中最基本的一个单元就是task了，常用定义方式如下：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">task test &#123;</span><br><span class="line">    println <span class="string">'hello world'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而熟悉Java的话，其实看上去挺别扭的，它还可以这么写：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">task(<span class="string">'test'</span>,&#123;</span><br><span class="line">    println <span class="string">'hello world'</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>这就比较符合Java了，方法名加括号里写参数。</p>
+<h3 id="3、闭包（Closure）"><a href="#3、闭包（Closure）" class="headerlink" title="3、闭包（Closure）"></a>3、闭包（Closure）</h3><p>首先来说，上面的写法，如果看过Objective C的话就不会很奇怪。它把一个闭包，也就是一个代码块当做参数进行传递。方法原型是task(String name,Closure Closure)</p>
+<p>而Groovy语法中，闭包如果是最后一个参数，可以提到括号外，也就是上面的写法等同于：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">task(<span class="string">'test'</span>) &#123;</span><br><span class="line">    println <span class="string">'hello world'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着，括号里只有一个参数，那么括号又可以省略，就变成了最开始写的那一种了。</p>
+<p>定义task除了这种，还可以使用Gradle提供的TaskContainer对象tasks的create方法：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tasks.create(<span class="string">'test'</span>,&#123;</span><br><span class="line">    println <span class="string">'hello world'</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="4、关于-lt-lt"><a href="#4、关于-lt-lt" class="headerlink" title="4、关于&lt;&lt;"></a>4、关于&lt;&lt;</h3><p>最开始看书和一些帖子的时候，会经常看到大家定义task时，总是有两种格式：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">task test &#123;println <span class="string">'hello world'</span>&#125;</span><br><span class="line"><span class="comment">//或者</span></span><br><span class="line">task test &lt;&lt; &#123;println <span class="string">'hello world'</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>单独拿出来运行时，一点区别都没有，所以比较纳闷，也没人提这个问题。</p>
+<p>后来想了下，&lt;&lt;其实应该是移位符，但移位符为什么写在这里，这种方式写出来有什么作用。</p>
+<p>还是回到Groovy语法上，了解到每个task中有一个doLast方法，控制执行顺序，常见写法：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">task test &#123;</span><br><span class="line">    doLast&#123;</span><br><span class="line">        println <span class="string">'hello world'</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>语法中，这个doLast操作等价于leftShift，替换方法后也可以这么写：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">task test &#123;&#125;</span><br><span class="line">test.leftShift&#123;</span><br><span class="line">    println <span class="string">'hello world'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后，左移位可以简写为&lt;&lt;并放到任务名后，就成为了常见的写法。</p>
+<p>到这里真是不得不感叹这个语言的灵活性，很有意思。</p>
+<h3 id="5、Project对象"><a href="#5、Project对象" class="headerlink" title="5、Project对象"></a>5、Project对象</h3><p>一个gradle文件中，有一个代表自身的Project对象，调用方法时一般都是省略的，比如：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">task test &lt;&lt; &#123;closure&#125;</span><br><span class="line"><span class="comment">//等价于</span></span><br><span class="line">project.tasks.create(<span class="string">'test'</span>).doLast&#123;closure&#125;</span><br></pre></td></tr></table></figure>
+<p>每个task都是project的一个属性，所以task之间可以做流程交互和控制。</p>
+<p>可以在Project中以ext自定义属性，比局部变量有更广泛的作用域，在其他位置用$做参数调用。</p>
+<h2 id="二、Android-Gradle"><a href="#二、Android-Gradle" class="headerlink" title="二、Android Gradle"></a>二、Android Gradle</h2><p>Android Studio中使用的，是官方基于Gradle写成的插件，我们在文件中第一行看到的：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apply <span class="string">plugin:</span> <span class="string">'com.android.application'</span></span><br></pre></td></tr></table></figure>
+<p>就是对App插件的应用，其他还有<code>com.android.libray</code>可以配置一个库工程。</p>
+<p>了解了语法之后就理解到每一行的配置，本质上都是一个方法，传递一个闭包，或者是一个属性，使用set方法进行了设定。所以如果哪一行不懂或是没用过，点进去看源码就好，都是开源的。那么就没有必要一个一个去写出来总结了，提几个感觉很有用的特性吧。</p>
+<h3 id="1、defaultConfig中一些属性的定义方式"><a href="#1、defaultConfig中一些属性的定义方式" class="headerlink" title="1、defaultConfig中一些属性的定义方式"></a>1、defaultConfig中一些属性的定义方式</h3><p>比如版本号、版本名，如果想要比较清晰的结构，可以分模块来写，便于修改：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建一个version.gradle文件，专门存放版本</span></span><br><span class="line">ext &#123;</span><br><span class="line">    appVersionCode = <span class="number">1</span></span><br><span class="line">    appVersionName = <span class="string">"1.0.0"</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//然后再build.gradle中引用他</span></span><br><span class="line">apply <span class="string">from:</span> <span class="string">'version.gradle'</span></span><br><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">        defaultConfig&#123;</span><br><span class="line">            ...</span><br><span class="line">            versionCode appVersionCode</span><br><span class="line">            versionName appVersionName</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>版本号和版本名除了自己写，也可以通过git中的tag信息和修改次数来动态获取。也就需要我们在方法中执行命令行，gradle也为我们提供了很方便的方法——exec，比如：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 以git中tag数量作为版本号</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">def</span> getAppVersionCode()&#123;</span><br><span class="line">    <span class="keyword">def</span> stdout = <span class="keyword">new</span> ByteArrayOutputStream()</span><br><span class="line">    exec &#123;</span><br><span class="line">        commandLine <span class="string">'git'</span>,<span class="string">'tag'</span>,<span class="string">'--list'</span></span><br><span class="line">        standardOutput = stdout</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> stdout.toString().split(<span class="string">"\n"</span>).size()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2、签名信息的隐藏"><a href="#2、签名信息的隐藏" class="headerlink" title="2、签名信息的隐藏"></a>2、签名信息的隐藏</h3><p>签名信息有时为了方便会直接放到项目中，但如果不想让其他人看到，又保证每个人可以打签名包，可以将信息配置到服务器上，通过引用环境变量的方式来获取，例如：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">        signingConfigs &#123;</span><br><span class="line">            <span class="keyword">def</span> appStoreFile = System.getenv(<span class="string">"STORE_FILE"</span>)</span><br><span class="line">            <span class="comment">//其他配置省略，还有storePassword、keyAlias、keyPassword</span></span><br><span class="line">            release&#123;</span><br><span class="line">                storeFile file(appStoreFile)</span><br><span class="line">                ...</span><br><span class="line">            &#125;        </span><br><span class="line">        &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3、占位符"><a href="#3、占位符" class="headerlink" title="3、占位符"></a>3、占位符</h3><p>当多渠道打包（这个其实还能用一篇的篇幅来说，不过暂时感觉没有必要细说）时，我们的AndroidManifest文件中，需要定义不同的内容，但类似这样的需求，又不能写多个文件来增加维护的复杂度，gradle为我们提供了十分方便的manifestPlaceholder占位符，可以用来替换内容。比如：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">   <span class="comment">//这里写一个简单的多渠道分包配置</span></span><br><span class="line">        productFlavors&#123;</span><br><span class="line">            google &#123;</span><br><span class="line">                manifestPlaceholder.put&#123;<span class="string">"Channel"</span>,<span class="string">"google"</span>&#125;</span><br><span class="line">            &#125;</span><br><span class="line">            baidu &#123;</span><br><span class="line">                manifestPlaceholder.put&#123;<span class="string">"Channel"</span>,<span class="string">"baidu"</span>&#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在清单文件中，就可以这样配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta-data</span> <span class="attr">android:name</span>=<span class="string">"Channel"</span> <span class="attr">android:value</span>=<span class="string">"$&#123;Channel&#125;"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>当我们打好不同的包，反编译后就可以看到不同包的manifest文件中这里显示了不同渠道名。</p>
+<p>如果渠道很多，要写的重复代码还是很多，可以通过遍历函数来写：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">    productFlavors&#123;</span><br><span class="line">        google &#123;&#125;</span><br><span class="line">        baidu &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    productFlavors.all &#123;</span><br><span class="line">        flavor-&gt;</span><br><span class="line">        manifestPlaceholders.put&#123;<span class="string">"Channel"</span>,name&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个遍历用途还有很多，比如不同渠道的apk文件名，也都可以方便的进行配置。</p>
+<p>### </p>
+<h2 id="三、结束"><a href="#三、结束" class="headerlink" title="三、结束"></a>三、结束</h2><p>还有很多可以说的，比如自定义属性、各种配置、多渠道构建、代码覆盖率、未用资源清理、ndk支持等等。不过我不是写书，没必要去全面总结，只是对一些有自己理解的地方进行记录，加深印象。剩下的，就是根据自己的需求看文档，会使用就够了。</p>
+<p>系统的看了这些之后，也算是对Gradle有了一定的理解，原来都想不到，为了更好的进行编译、打包、测试等，这个文件都能写到几百行。所以想要精通一个门类，还是需要各方面都去学习，磨刀不误砍柴工说的没错，只有我们更好的利用工具，才能把工作做得更好更有效率。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div id="donation_div"></div>
+
+<script src="/js/vdonate.js"></script>
+<script>
+var a = new Donate({
+  title: '如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作!', // 可选参数，打赏标题
+  btnText: 'Donate', // 可选参数，打赏按钮文字
+  el: document.getElementById('donation_div'),
+  wechatImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/WXQR.png',
+  alipayImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/AliQR.jpg'
+});
+</script>
+      
+      
+      <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>Post author:  </strong>Yshen
+          </li>
+          <li class="post-copyright-link">
+          <strong>Post link:  </strong>
+          <a href="/2018/11/25/Gradle/" target="_blank" title="对Gradle的浅显理解">http://yshen.me/2018/11/25/Gradle/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>Copyright Notice:   </strong>
+            All articles in this blog are licensed under <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            unless stating additionally.
+          </li>
+         
+        </ul>
+<div>
+</div></div>
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+      
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2018/11/09/BookList/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">一份安卓开发书单</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="toc-sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、Gradle"><span class="nav-number">1.</span> <span class="nav-text">一、Gradle</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、Groovy"><span class="nav-number">1.1.</span> <span class="nav-text">1、Groovy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、任务（Task）"><span class="nav-number">1.2.</span> <span class="nav-text">2、任务（Task）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、闭包（Closure）"><span class="nav-number">1.3.</span> <span class="nav-text">3、闭包（Closure）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4、关于-lt-lt"><span class="nav-number">1.4.</span> <span class="nav-text">4、关于&lt;&lt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5、Project对象"><span class="nav-number">1.5.</span> <span class="nav-text">5、Project对象</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、Android-Gradle"><span class="nav-number">2.</span> <span class="nav-text">二、Android Gradle</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、defaultConfig中一些属性的定义方式"><span class="nav-number">2.1.</span> <span class="nav-text">1、defaultConfig中一些属性的定义方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、签名信息的隐藏"><span class="nav-number">2.2.</span> <span class="nav-text">2、签名信息的隐藏</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、占位符"><span class="nav-number">2.3.</span> <span class="nav-text">3、占位符</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、结束"><span class="nav-number">3.</span> <span class="nav-text">三、结束</span></a></li></ol>
+    
+    </div>
+  </aside>
+
+</section>
+        
+      </div>
+      
+      <footer id="footer">
+  
+
+  <div class="container">
+      	<div class="row">
+	      <p> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></p>
+	      <p id="copyRightEn">Copyright &copy; 2018 - 2018 Yshen&#39;s  Blog All Rights Reserved.</p>
+	      
+	      
+    		<p class="busuanzi_uv">
+				UV : <span id="busuanzi_value_site_uv"></span> |  
+				PV : <span id="busuanzi_value_site_pv"></span>
+		    </p>
+  		   
+		</div>
+
+		
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+    var allheader = document.getElementById("allheader");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight + "px";
+    if (allheader != null) {
+      contentdiv.style.minHeight = document.body.offsetHeight - allheader.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    } else {
+      contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    }
+</script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <div class="ribbon">
+<a href="https://github.com/Yyyyshen">Fork me on GitHub</a>
+</div>
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+
+
+
+
+  <script src="/js/dialog.js"></script>
+
+
+
+
+
+
+
+
+	<div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+
+  </div>
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="myModalLabel">设置</h2>
+      </div>
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+
+
+      <div class="modal-body">
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" onclick="javascript:setFontSize();" aria-expanded="true" aria-controls="collapseOne">
+              正文字号大小
+            </a>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+          <div class="panel-body">
+            您已调整页面字体大小
+          </div>
+        </div>
+      
+
+
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" onclick="javascript:setBackground();" aria-expanded="true" aria-controls="collapseTwo">
+              夜间护眼模式
+            </a>
+        </div>
+          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+          <div class="panel-body">
+            夜间模式已经开启，再次单击按钮即可关闭 
+          </div>
+        </div>
+
+        <div>
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关 于&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+        </div>
+         <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+          <div class="panel-body">
+            Yshen&#39;s  Blog
+          </div>
+          <div class="panel-body">
+            Copyright © 2018 Yshen All Rights Reserved.
+          </div>
+        </div>
+      </div>
+
+
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <div class="modal-footer">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+  
+    <a id="menu-switch"><i class="fa fa-bars fa-lg"></i></a>
+  
+</body>
+</html>
