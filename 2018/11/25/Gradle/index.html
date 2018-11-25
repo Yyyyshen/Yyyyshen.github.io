@@ -19,7 +19,7 @@
 <meta property="og:site_name" content="Yshen&#39;s  Blog">
 <meta property="og:description" content="刚开始学安卓一直觉得Gradle这个东西很神秘，也很麻烦。以至于写了很久的安卓之后对Gradle还是一点都不懂，只知道可以方便的引入第三方库，至于其他行的配置，就更只是眼熟。光能写代码却不懂编译用的工具，这好像不太合适，索性买了本书专门研究了下。看完做下笔记，记录对它的理解。 一、Gradle1、GroovyGradle基于groovy语言，这是一个兼容Java的扩展语言。语法非常灵活。环境可以在">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-11-25T16:13:01.124Z">
+<meta property="og:updated_time" content="2018-11-25T16:19:40.760Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="对Gradle的浅显理解">
 <meta name="twitter:description" content="刚开始学安卓一直觉得Gradle这个东西很神秘，也很麻烦。以至于写了很久的安卓之后对Gradle还是一点都不懂，只知道可以方便的引入第三方库，至于其他行的配置，就更只是眼熟。光能写代码却不懂编译用的工具，这好像不太合适，索性买了本书专门研究了下。看完做下笔记，记录对它的理解。 一、Gradle1、GroovyGradle基于groovy语言，这是一个兼容Java的扩展语言。语法非常灵活。环境可以在">
@@ -239,7 +239,6 @@
 <p>如果渠道很多，要写的重复代码还是很多，可以通过遍历函数来写：</p>
 <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">    productFlavors&#123;</span><br><span class="line">        google &#123;&#125;</span><br><span class="line">        baidu &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    productFlavors.all &#123;</span><br><span class="line">        flavor-&gt;</span><br><span class="line">        manifestPlaceholders.put&#123;<span class="string">"Channel"</span>,name&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这个遍历用途还有很多，比如不同渠道的apk文件名，也都可以方便的进行配置。</p>
-<p>### </p>
 <h2 id="三、结束"><a href="#三、结束" class="headerlink" title="三、结束"></a>三、结束</h2><p>还有很多可以说的，比如自定义属性、各种配置、多渠道构建、代码覆盖率、未用资源清理、ndk支持等等。不过我不是写书，没必要去全面总结，只是对一些有自己理解的地方进行记录，加深印象。剩下的，就是根据自己的需求看文档，会使用就够了。</p>
 <p>系统的看了这些之后，也算是对Gradle有了一定的理解，原来都想不到，为了更好的进行编译、打包、测试等，这个文件都能写到几百行。所以想要精通一个门类，还是需要各方面都去学习，磨刀不误砍柴工说的没错，只有我们更好的利用工具，才能把工作做得更好更有效率。</p>
 
