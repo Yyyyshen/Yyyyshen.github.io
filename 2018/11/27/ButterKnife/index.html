@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>butterknife简单实现与源码理解 | Yshen&#39;s  Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="Library">
+  
+  
+  
+  
+  <meta name="description" content="ButterKnife是一个可以很方便的获取View及处理其他操作的第三方库，出自JW之手。他可以让我们代码中大量的findViewByid省略，专注于业务和逻辑。这些作为安卓开发者都很清楚，不需要多说。 一、自己实现简易ButterKnife1、原理 注解 类似一个标签，可以像图钉一样固定在代码中各个位置。  反射 通过拿到类的字节码文件来获取类中的资源，如属性、方法等。   2、实现模仿But">
+<meta name="keywords" content="Library">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ButterKnife简单实现与源码理解">
+<meta property="og:url" content="http://yshen.me/2018/11/27/ButterKnife/index.html">
+<meta property="og:site_name" content="Yshen&#39;s  Blog">
+<meta property="og:description" content="ButterKnife是一个可以很方便的获取View及处理其他操作的第三方库，出自JW之手。他可以让我们代码中大量的findViewByid省略，专注于业务和逻辑。这些作为安卓开发者都很清楚，不需要多说。 一、自己实现简易ButterKnife1、原理 注解 类似一个标签，可以像图钉一样固定在代码中各个位置。  反射 通过拿到类的字节码文件来获取类中的资源，如属性、方法等。   2、实现模仿But">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-11-27T14:50:59.732Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ButterKnife简单实现与源码理解">
+<meta name="twitter:description" content="ButterKnife是一个可以很方便的获取View及处理其他操作的第三方库，出自JW之手。他可以让我们代码中大量的findViewByid省略，专注于业务和逻辑。这些作为安卓开发者都很清楚，不需要多说。 一、自己实现简易ButterKnife1、原理 注解 类似一个标签，可以像图钉一样固定在代码中各个位置。  反射 通过拿到类的字节码文件来获取类中的资源，如属性、方法等。   2、实现模仿But">
+  
+    <link rel="alternate" href="/atom.xml" title="Yshen&#39;s  Blog" type="application/atom+xml">
+  
+
+  
+
+  <link rel="icon" href="/css/images/mylogo.jpg">
+  <link rel="apple-touch-icon" href="/css/images/mylogo.jpg">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="/js/jquery-3.1.1.min.js"></script>
+  <script src="/js/bootstrap.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css">
+
+  
+    <link rel="stylesheet" href="/css/dialog.css">
+  
+
+  
+
+  
+    <link rel="stylesheet" href="/css/header-post.css">
+  
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/vdonate.css">
+  
+
+</head>
+</html>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+  <div id="container">
+    <div id="wrap">
+      
+        <header>
+
+    <div id="allheader" class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="navbar-inner">
+          
+          <div class="container"> 
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            
+              <a class="brand" style="
+                 margin-top: 0px;" href="#" data-toggle="modal" data-target="#myModal">
+                  <img width="124px" height="124px" alt="Hike News" src="/css/images/mylogo.jpg">
+              </a>
+            
+            
+            <div class="navbar-collapse collapse">
+              <ul class="hnav navbar-nav">
+                
+                  <li> <a class="main-nav-link" href="/">Home</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/archives">Archives</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/categories">Categories</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/tags">Tags</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/about">About</a> </li>
+                
+                  <li><div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div></li>
+            </ul></div>
+          </div>
+                
+      </div>
+    </div>
+
+</header>
+
+
+
+      
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-ButterKnife" style="width: 75%; float:left;" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div id="articleInner" class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      ButterKnife简单实现与源码理解
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2018/11/27/ButterKnife/" class="article-date">
+	  <time datetime="2018-11-27T14:49:16.000Z" itemprop="datePublished">2018-11-27</time>
+	</a>
+
+      
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+	<a class="article-views">
+	<span id="busuanzi_container_page_pv">
+		PV:<span id="busuanzi_value_page_pv"></span>
+	</span>
+	</a>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>ButterKnife是一个可以很方便的获取View及处理其他操作的第三方库，出自JW之手。他可以让我们代码中大量的<code>findViewByid</code>省略，专注于业务和逻辑。这些作为安卓开发者都很清楚，不需要多说。</p>
+<h2 id="一、自己实现简易ButterKnife"><a href="#一、自己实现简易ButterKnife" class="headerlink" title="一、自己实现简易ButterKnife"></a>一、自己实现简易ButterKnife</h2><h3 id="1、原理"><a href="#1、原理" class="headerlink" title="1、原理"></a>1、原理</h3><ul>
+<li><p>注解</p>
+<p>类似一个标签，可以像图钉一样固定在代码中各个位置。</p>
+</li>
+<li><p>反射</p>
+<p>通过拿到类的字节码文件来获取类中的资源，如属性、方法等。</p>
+</li>
+</ul>
+<h3 id="2、实现"><a href="#2、实现" class="headerlink" title="2、实现"></a>2、实现</h3><p>模仿ButterKnife，定义一个入口类，用一个bind方法初始化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">YBind</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">bind</span><span class="params">(Activity context)</span></span>&#123;</span><br><span class="line">        bindView(activity);</span><br><span class="line">        bindClick(activity);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里以最常用的绑定view和点击方法为例。</p>
+<p>接下来定义两个注解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(ElementType.FIELD)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> YBindView &#123;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">value</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Target</span>(ElementType.METHOD)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> YBindClick &#123;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">value</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>两个注解上，Target表示该注解可以绑定什么类型的成员；Retention表示该注解的作用范围，这里都是运行时。</p>
+<p>然后就是两个具体方法的实现了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">bindView</span><span class="params">(Activity activity)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//获取class</span></span><br><span class="line">       Class clazz = activity.getClass();</span><br><span class="line">       <span class="comment">//通过字节码文件获取所有属性</span></span><br><span class="line">       Field[] declaredFields = clazz.getDeclaredFields();</span><br><span class="line">       <span class="comment">//遍历</span></span><br><span class="line">       <span class="keyword">for</span> (Field field : declaredFields)&#123;</span><br><span class="line">           field.setAccessible(<span class="keyword">true</span>);<span class="comment">//解除限定，设置可修改</span></span><br><span class="line">           YBindView annotation = field.getAnnotation(YBindView.class);</span><br><span class="line">           <span class="keyword">if</span> (annotation != <span class="keyword">null</span>)&#123;</span><br><span class="line">               <span class="comment">//获取每个属性上的注解，如果不为空则拿到注解的值</span></span><br><span class="line">               <span class="keyword">int</span> id = annotation.value();</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   <span class="comment">//通过findViewById拿到view并赋值</span></span><br><span class="line">                   field.set(activity,activity.findViewById(id));</span><br><span class="line">               &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">                   e.printStackTrace();</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"><span class="comment">//绑定点击方法思路相同，只不过是遍历方法，多做一步点击并执行方法</span></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">bindClick</span><span class="params">(<span class="keyword">final</span> Activity activity)</span> </span>&#123;</span><br><span class="line">       Class clazz = activity.getClass();</span><br><span class="line">       Method[] declaredMethods = clazz.getDeclaredMethods();</span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">final</span> Method method:declaredMethods)&#123;</span><br><span class="line">           method.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">           YBindClick annotation = method.getAnnotation(YBindClick.class);</span><br><span class="line">           <span class="keyword">if</span> (annotation != <span class="keyword">null</span>)&#123;</span><br><span class="line">               <span class="keyword">int</span> id = annotation.value();</span><br><span class="line">               View view = activity.findViewById(id);<span class="comment">//依然需要先拿到view</span></span><br><span class="line">               view.setOnClickListener(<span class="keyword">new</span> View.OnClickListener() &#123;</span><br><span class="line">                   <span class="meta">@Override</span></span><br><span class="line">                   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</span><br><span class="line">                       <span class="keyword">try</span> &#123;</span><br><span class="line">                           method.invoke(activity);<span class="comment">//执行对应方法</span></span><br><span class="line">                       &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">                           e.printStackTrace();</span><br><span class="line">                       &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">                           e.printStackTrace();</span><br><span class="line">                       &#125;</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>最后测试一下，果然是没问题的。</p>
+<p>但是，如此火的一个开源库实现难道就这么简单？怎么可能…</p>
+<h2 id="二、阅读源码"><a href="#二、阅读源码" class="headerlink" title="二、阅读源码"></a>二、阅读源码</h2><h3 id="1、入口"><a href="#1、入口" class="headerlink" title="1、入口"></a>1、入口</h3><p>同样的bind方法作为入口，点进源码一看：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NonNull</span> <span class="meta">@UiThread</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Unbinder <span class="title">bind</span><span class="params">(@NonNull Activity target)</span> </span>&#123;</span><br><span class="line">  View sourceView = target.getWindow().getDecorView();</span><br><span class="line">  <span class="keyword">return</span> bind(target, sourceView);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>果然还是不同的，继续跟进：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NonNull</span> <span class="meta">@UiThread</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Unbinder <span class="title">bind</span><span class="params">(@NonNull Object target, @NonNull View source)</span> </span>&#123;</span><br><span class="line">  Class&lt;?&gt; targetClass = target.getClass();</span><br><span class="line">  Constructor&lt;? extends Unbinder&gt; constructor = findBindingConstructorForClass(targetClass);</span><br><span class="line">  <span class="keyword">if</span> (constructor == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> Unbinder.EMPTY;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> constructor.newInstance(target, source);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">    <span class="comment">//...省略掉处理过程</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过传进来的activity拿到窗口，并且获取到构造器，然后创建实例。那么跟进获取构造器方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Nullable</span> <span class="meta">@CheckResult</span> <span class="meta">@UiThread</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Constructor&lt;? extends Unbinder&gt; findBindingConstructorForClass(Class&lt;?&gt; cls) &#123;</span><br><span class="line">  Constructor&lt;? extends Unbinder&gt; bindingCtor = BINDINGS.get(cls);</span><br><span class="line">  <span class="keyword">if</span> (bindingCtor != <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> bindingCtor;</span><br><span class="line">  &#125;</span><br><span class="line">  String clsName = cls.getName();</span><br><span class="line">  <span class="keyword">if</span> (clsName.startsWith(<span class="string">"android."</span>) || clsName.startsWith(<span class="string">"java."</span>)</span><br><span class="line">      || clsName.startsWith(<span class="string">"androidx."</span>)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    Class&lt;?&gt; bindingClass = cls.getClassLoader().loadClass(clsName + <span class="string">"_ViewBinding"</span>);</span><br><span class="line">    <span class="comment">//noinspection unchecked</span></span><br><span class="line">    bindingCtor = (Constructor&lt;? extends Unbinder&gt;) bindingClass.getConstructor(cls, View.class);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">    bindingCtor = findBindingConstructorForClass(cls.getSuperclass());</span><br><span class="line">  &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Unable to find binding constructor for "</span> + clsName, e);</span><br><span class="line">  &#125;</span><br><span class="line">  BINDINGS.put(cls, bindingCtor);</span><br><span class="line">  <span class="keyword">return</span> bindingCtor;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>中间的一句loadClass通过className+ViewBinding拿到对应的字节码文件，拿到构造器并返回。BINDINGS是一个为了能够复用这些构造器创建的map，解决了反射影响性能的问题。</p>
+<p>等一下，这就完了？翻了半天，没有其他处理，引入的包里除了入口类只剩下其他所有的注解类。</p>
+<p>正纳闷怎么实现的处理，想到直接去搜一下这个ViewBinding，果然是能搜到的。里面通过构造方法，调用了工具类来处理findViewById等操作，就是上面简易实现中的注解和反射的应用了。</p>
+<p>但是这个类明显是ButterKnife为我们自动生成的，它又是怎么来的？</p>
+<h3 id="2、核心"><a href="#2、核心" class="headerlink" title="2、核心"></a>2、核心</h3><p>通过gradle引入的包并不能看到全部源码，所以去github查看他的compiler包，其中一个类ButterKnifeProcessor实现了ViewBinding类的生成，看一下主要过程。</p>
+<p>重写process方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">process</span><span class="params">(Set&lt;? extends TypeElement&gt; elements, RoundEnvironment env)</span> </span>&#123;</span><br><span class="line">    Map&lt;TypeElement, BindingSet&gt; bindingMap = findAndParseTargets(env);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (Map.Entry&lt;TypeElement, BindingSet&gt; entry : bindingMap.entrySet()) &#123;</span><br><span class="line">      TypeElement typeElement = entry.getKey();</span><br><span class="line">      BindingSet binding = entry.getValue();</span><br><span class="line"></span><br><span class="line">      JavaFile javaFile = binding.brewJava(sdk, debuggable, useLegacyTypes);</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        javaFile.writeTo(filer);</span><br><span class="line">      &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        error(typeElement, <span class="string">"Unable to write binding for type %s: %s"</span>, typeElement, e.getMessage());</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先用findAndParseTargets方法扫描了所有注解类拿到map，再遍历这个map的键值对拿到kv值，然后以此作为信息，通过JavaFile生成java类。至于每个方法的具体实现，直接去看源码就好，就不贴了。</p>
+<p>梳理了这些，再回头去看bind流程，就能豁然开朗了。至此算是明白了他的实现思路。</p>
+<h2 id="三、小结"><a href="#三、小结" class="headerlink" title="三、小结"></a>三、小结</h2><p>果然还是不能把事情想得太简单，自己的简单实现虽然能够使用，但其实缺少太多的细节，比如怎么才能在BaseActivity中一次定义就能随意使用、反射性能问题的处理等。这些都是我远远想不到的，也是为什么大神的开源库能被广泛的使用。</p>
+<p>所以说，什么东西都不能只是会用，还要理解原理，最好是还能自己会写。看问题要细致并且挖的深一些，才能有收获。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div id="donation_div"></div>
+
+<script src="/js/vdonate.js"></script>
+<script>
+var a = new Donate({
+  title: '如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作!', // 可选参数，打赏标题
+  btnText: 'Donate', // 可选参数，打赏按钮文字
+  el: document.getElementById('donation_div'),
+  wechatImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/WXQR.png',
+  alipayImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/AliQR.jpg'
+});
+</script>
+      
+      
+      <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>Post author:  </strong>Yshen
+          </li>
+          <li class="post-copyright-link">
+          <strong>Post link:  </strong>
+          <a href="/2018/11/27/ButterKnife/" target="_blank" title="ButterKnife简单实现与源码理解">http://yshen.me/2018/11/27/ButterKnife/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>Copyright Notice:   </strong>
+            All articles in this blog are licensed under <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            unless stating additionally.
+          </li>
+         
+        </ul>
+<div>
+</div></div>
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+      
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2018/11/25/Gradle/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">对Gradle的浅显理解</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="toc-sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、自己实现简易ButterKnife"><span class="nav-number">1.</span> <span class="nav-text">一、自己实现简易ButterKnife</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、原理"><span class="nav-number">1.1.</span> <span class="nav-text">1、原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、实现"><span class="nav-number">1.2.</span> <span class="nav-text">2、实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、阅读源码"><span class="nav-number">2.</span> <span class="nav-text">二、阅读源码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、入口"><span class="nav-number">2.1.</span> <span class="nav-text">1、入口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、核心"><span class="nav-number">2.2.</span> <span class="nav-text">2、核心</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、小结"><span class="nav-number">3.</span> <span class="nav-text">三、小结</span></a></li></ol>
+    
+    </div>
+  </aside>
+
+</section>
+        
+      </div>
+      
+      <footer id="footer">
+  
+
+  <div class="container">
+      	<div class="row">
+	      <p> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></p>
+	      <p id="copyRightEn">Copyright &copy; 2018 - 2018 Yshen&#39;s  Blog All Rights Reserved.</p>
+	      
+	      
+    		<p class="busuanzi_uv">
+				UV : <span id="busuanzi_value_site_uv"></span> |  
+				PV : <span id="busuanzi_value_site_pv"></span>
+		    </p>
+  		   
+		</div>
+
+		
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+    var allheader = document.getElementById("allheader");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight + "px";
+    if (allheader != null) {
+      contentdiv.style.minHeight = document.body.offsetHeight - allheader.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    } else {
+      contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    }
+</script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <div class="ribbon">
+<a href="https://github.com/Yyyyshen">Fork me on GitHub</a>
+</div>
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+
+
+
+
+  <script src="/js/dialog.js"></script>
+
+
+
+
+
+
+
+
+	<div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+
+  </div>
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="myModalLabel">设置</h2>
+      </div>
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+
+
+      <div class="modal-body">
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" onclick="javascript:setFontSize();" aria-expanded="true" aria-controls="collapseOne">
+              正文字号大小
+            </a>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+          <div class="panel-body">
+            您已调整页面字体大小
+          </div>
+        </div>
+      
+
+
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" onclick="javascript:setBackground();" aria-expanded="true" aria-controls="collapseTwo">
+              夜间护眼模式
+            </a>
+        </div>
+          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+          <div class="panel-body">
+            夜间模式已经开启，再次单击按钮即可关闭 
+          </div>
+        </div>
+
+        <div>
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关 于&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+        </div>
+         <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+          <div class="panel-body">
+            Yshen&#39;s  Blog
+          </div>
+          <div class="panel-body">
+            Copyright © 2018 Yshen All Rights Reserved.
+          </div>
+        </div>
+      </div>
+
+
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <div class="modal-footer">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+  
+    <a id="menu-switch"><i class="fa fa-bars fa-lg"></i></a>
+  
+</body>
+</html>
