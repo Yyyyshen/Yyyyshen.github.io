@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>反编译工作总结 | Yshen&#39;s  Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="Decomplie">
+  
+  
+  
+  
+  <meta name="description" content="说下为什么要总结这个。首先，是对自己成长的记录，另外，在这项工作的过程中，发现了很多问题，毕竟很多帖子都很旧了，链接也都是非官方或过时的。所以，如果有人能看到，也能少踩些坑。反编译也是我们学习的一个途径，十分有用。 反编译环境 %JAVA_HOME%，能涉及到反编译了，这个应该早就烂熟于心了吧。 python，运行一些脚本时会用到，不过我需求不高。  我最常用的工具apktool可以说是最常用也最">
+<meta name="keywords" content="Decomplie">
+<meta property="og:type" content="article">
+<meta property="og:title" content="反编译工作总结">
+<meta property="og:url" content="http://yshen.me/2019/01/27/Decomplie/index.html">
+<meta property="og:site_name" content="Yshen&#39;s  Blog">
+<meta property="og:description" content="说下为什么要总结这个。首先，是对自己成长的记录，另外，在这项工作的过程中，发现了很多问题，毕竟很多帖子都很旧了，链接也都是非官方或过时的。所以，如果有人能看到，也能少踩些坑。反编译也是我们学习的一个途径，十分有用。 反编译环境 %JAVA_HOME%，能涉及到反编译了，这个应该早就烂熟于心了吧。 python，运行一些脚本时会用到，不过我需求不高。  我最常用的工具apktool可以说是最常用也最">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-03-01T08:48:54.448Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="反编译工作总结">
+<meta name="twitter:description" content="说下为什么要总结这个。首先，是对自己成长的记录，另外，在这项工作的过程中，发现了很多问题，毕竟很多帖子都很旧了，链接也都是非官方或过时的。所以，如果有人能看到，也能少踩些坑。反编译也是我们学习的一个途径，十分有用。 反编译环境 %JAVA_HOME%，能涉及到反编译了，这个应该早就烂熟于心了吧。 python，运行一些脚本时会用到，不过我需求不高。  我最常用的工具apktool可以说是最常用也最">
+  
+    <link rel="alternate" href="/atom.xml" title="Yshen&#39;s  Blog" type="application/atom+xml">
+  
+
+  
+
+  <link rel="icon" href="/css/images/mylogo.jpg">
+  <link rel="apple-touch-icon" href="/css/images/mylogo.jpg">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="/js/jquery-3.1.1.min.js"></script>
+  <script src="/js/bootstrap.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css">
+
+  
+    <link rel="stylesheet" href="/css/dialog.css">
+  
+
+  
+
+  
+    <link rel="stylesheet" href="/css/header-post.css">
+  
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/vdonate.css">
+  
+
+</head>
+</html>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+  <div id="container">
+    <div id="wrap">
+      
+        <header>
+
+    <div id="allheader" class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="navbar-inner">
+          
+          <div class="container"> 
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            
+              <a class="brand" style="
+                 margin-top: 0px;" href="#" data-toggle="modal" data-target="#myModal">
+                  <img width="124px" height="124px" alt="Hike News" src="/css/images/mylogo.jpg">
+              </a>
+            
+            
+            <div class="navbar-collapse collapse">
+              <ul class="hnav navbar-nav">
+                
+                  <li> <a class="main-nav-link" href="/">Home</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/archives">Archives</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/categories">Categories</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/tags">Tags</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/about">About</a> </li>
+                
+                  <li><div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div></li>
+            </ul></div>
+          </div>
+                
+      </div>
+    </div>
+
+</header>
+
+
+
+      
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-Decomplie" style="width: 75%; float:left;" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div id="articleInner" class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      反编译工作总结
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2019/01/27/Decomplie/" class="article-date">
+	  <time datetime="2019-01-27T02:03:53.000Z" itemprop="datePublished">2019-01-27</time>
+	</a>
+
+      
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+	<a class="article-views">
+	<span id="busuanzi_container_page_pv">
+		PV:<span id="busuanzi_value_page_pv"></span>
+	</span>
+	</a>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><em>说下为什么要总结这个。首先，是对自己成长的记录，另外，在这项工作的过程中，发现了很多问题，毕竟很多帖子都很旧了，链接也都是非官方或过时的。所以，如果有人能看到，也能少踩些坑。反编译也是我们学习的一个途径，十分有用。</em></p>
+<h2 id="反编译环境"><a href="#反编译环境" class="headerlink" title="反编译环境"></a>反编译环境</h2><ul>
+<li>%JAVA_HOME%，能涉及到反编译了，这个应该早就烂熟于心了吧。</li>
+<li>python，运行一些脚本时会用到，不过我需求不高。</li>
+</ul>
+<h2 id="我最常用的工具"><a href="#我最常用的工具" class="headerlink" title="我最常用的工具"></a>我最常用的工具</h2><h3 id="apktool"><a href="#apktool" class="headerlink" title="apktool"></a>apktool</h3><p>可以说是最常用也最关键的工具了。我们知道apk本质就是个压缩包，直接改后缀解压就能看到app完整的目录结构，但这样做文件都是加密的。用了apktool工具反编译后，就可以明文看资源文件，包括AndroidManifest.xml、布局文件等，可以学习别人的界面布局。源代码包里则是smali格式文件，还需要处理才能看到java代码。</p>
+<p>这里遇到第一个坑就是像我开头所说，帖子比较老，也不是官方链接，下载到了jar工具包之后，反编译各种包都是失败，我找了很久是不是我操作问题，出错信息也看的头疼。最后发现，只有用最新的jar包，才能保证能够使用。下面是官方地址：</p>
+<p><a href="https://ibotpeaches.github.io/Apktool/" target="_blank" rel="noopener">https://ibotpeaches.github.io/Apktool/</a></p>
+<p>我不太清楚为什么很少有帖子直接贴出这个网址，这里文档写的十分详细，包括怎么下载最新的包、怎么安装使用bat脚本，详细到我觉得我没有必要往下写（我没偷懒嗷）。</p>
+<p>作为程序员，英语总要看的懂的，简单翻译下install标签内容吧，以Windows平台为例：</p>
+<ul>
+<li>把官网给的脚本（网址里有超链接，点进去全部复制就好）放到记事本里，后缀改bat</li>
+<li>下载最新的jar包，改名为apktool.jar（脚本中为了方便，去掉了版本号）</li>
+<li>把两个文件放到系统文件夹C://Windows下，这样你只要打开cmd就可以用了</li>
+</ul>
+<p>（个人习惯是放在随便一个同目录下使用，方便管理，感觉没必要当成系统命令）</p>
+<p>常用命令：</p>
+<ul>
+<li>apktool.bat d test.apk ——会在当前目录生成与apk包同名的文件夹，里面是资源文件</li>
+<li>apktool.bat -o test -new.apk test ——可以把上面生成的文件夹反打包成新apk</li>
+</ul>
+<p>反打包后的签名就看你自己了，测试签名有一个jar包加一条命令就好了，百度一下有很多。</p>
+<h3 id="dex2jar-jd-gui"><a href="#dex2jar-jd-gui" class="headerlink" title="dex2jar+jd-gui"></a>dex2jar+jd-gui</h3><p>如果你只想看一下别人的布局怎么写，那么apktool就足够了，但如果你不了解smali或者是想破解是手游，你就还需要看源代码。那么怎么能看到java代码，就需要d2j来帮忙。</p>
+<p>看名字就知道：dexToJar，apk直接解压后会发现一个class.dex的文件（当然可能不止一个），这里面就是app的src源代码了。这个工具一样要强调，用最新的工具包！先贴一下更新地址：</p>
+<p><a href="https://github.com/pxb1988/dex2jar/releases" target="_blank" rel="noopener">https://github.com/pxb1988/dex2jar/releases</a></p>
+<p>按照最早一些看到的帖子来操作，就是解压，拿到dex，再用dex2jar.bat class.dex命令拿到jar包。是不是觉得很麻烦。每次你都要改后缀、解压、拿dex去敲命令。不过总算是拿到了jar包，也离java代码更近了一步。</p>
+<p>另外就是，由于方法太多，超过65535个的话，dex文件会有多个，也就是multidex的情况，对于这样的dex，我也找了很多帖子，不过当时刚毕业比较菜，也看不懂。后来通过看文档，发现从这个工具包2.1之后，就直接支持多dex文件转换了，而且更方便的是可以直接操作apk包，不需要解压。</p>
+<p>最简化命令：d2j-dex2jar.bat test.apk ——太方便了吧，所以还是要是说，什么都要找最新版。</p>
+<p>拿到jar包之后，就需要第二个工具jd-gui了，这个很简单，贴个官方地址：</p>
+<p><a href="http://jd.benow.ca/" target="_blank" rel="noopener">http://jd.benow.ca/</a></p>
+<p>jar包拖进界面里，就能看java代码了。有一个小tips：使用的时候我发现有的时候，它对内部类的处理不够完善，所以有时拖进去的代码是不完整的，这时候可以把jar包解压，然后随便拖一个文件进去，它就能自动完整的导入所有文件了。</p>
+<h3 id="jadx"><a href="#jadx" class="headerlink" title="jadx"></a>jadx</h3><p>懒人是社会进步的阶梯。如果你还是觉得上面很麻烦，那么恭喜你，这个工具可以让你的体验更上一层楼，你只需要下载，把apk包拖进去，就能直接看所有代码了…</p>
+<p>更新地址：<a href="https://github.com/skylot/jadx" target="_blank" rel="noopener">https://github.com/skylot/jadx</a></p>
+<h2 id="拿到资源和代码后"><a href="#拿到资源和代码后" class="headerlink" title="拿到资源和代码后"></a>拿到资源和代码后</h2><h3 id="混淆问题"><a href="#混淆问题" class="headerlink" title="混淆问题"></a>混淆问题</h3><p>现在的app，为了保护自己的代码都是会混淆的，并且似乎没有什么解决方案，因为最早的时候，混淆规则会存放下来，能够通过这个文件反推出来，但现在已经不是这样了。所以，可能只能简单的看看逻辑和部分开放代码了。</p>
+<p>有两个52破解里大神做的反编译全家桶，不过都比较老，现在基本都不太好用，简单留两个地址吧，里面还有反混淆的脚本，我试了一下，效果也并不好：</p>
+<p>Android Killer：<a href="https://www.52pojie.cn/thread-726176-1-1.html" target="_blank" rel="noopener">https://www.52pojie.cn/thread-726176-1-1.html</a></p>
+<p>这个集成了apktool、d2j和jd-gui，可以查壳，反编译，简单改代码，还能连接模拟器，编译反打包调试。功能很齐全。但我还是喜欢用上面工具自己操作，见仁见智吧。如果你要使用，请把里面的jar包都替换成最新的。</p>
+<p>Jeb：同样很出名的反编译工具，可以运行各种脚本去处理smali代码，批量反编译和解混淆，需要python环境，但对java环境比较挑，兼容性一般。我试了几个版本，jdk8u121版本才可以，其他版本会闪退，最新的jdk11不会闪退但会报空指针。所以我也没怎么使用。想了解也可以去52找一下，里面大神很多，可以学到很多。</p>
+<h3 id="库文件和组件化——IDA-Pro"><a href="#库文件和组件化——IDA-Pro" class="headerlink" title="库文件和组件化——IDA Pro"></a>库文件和组件化——IDA Pro</h3><p>如果你不满足于看java代码，还想看jni层native算法，也就是so库中的c代码。你就需要在反编译.so文件，这个文件类似于dll文件，是linux下的库文件，win环境下是打不开的。但找了一段时间还是让我找到一个工具：</p>
+<p>IDA PRO：<a href="https://www.hex-rays.com/products/ida/support/download.shtml" target="_blank" rel="noopener">https://www.hex-rays.com/products/ida/support/download.shtml</a></p>
+<p>不过不是免费的，可以下破解版。使用方法也不难，打开后把so文件拖进去，会弹一个窗口让你选解析格式，一般来说选elf就可以了，然后等待编译完成，会列出方法列表，按f5就能编译出c代码了。这个工具我用的也还不太熟练，可以看下文档。</p>
+<p>还有就是一些公司的组件化会包装成so文件，其实就是改个后缀，然后迷惑了我一下，拖进软件发现只有zip解析格式的话，就可以用apktool去当成app反编译下。</p>
+<h2 id="反编译后修改程序"><a href="#反编译后修改程序" class="headerlink" title="反编译后修改程序"></a>反编译后修改程序</h2><h3 id="smali"><a href="#smali" class="headerlink" title="smali"></a>smali</h3><p>类似java虚拟机字节码对应的是class文件，安卓中Dalvik虚拟机的字节码文件就是这个smali，语法上，是可以学习的，但很别扭，并且十分麻烦，这个细说能发一整篇，参考资料：</p>
+<p><a href="https://stackoverflow.com/questions/5656804/whats-the-best-way-to-learn-smali-and-how-when-to-use-dalvik-vm-opcodes" target="_blank" rel="noopener">https://stackoverflow.com/questions/5656804/whats-the-best-way-to-learn-smali-and-how-when-to-use-dalvik-vm-opcodes</a></p>
+<p>当然你简单的学会语法之后，也很难去自己直接用smali写程序，因为，太复杂了，写一个helloworld都要半天，这谁顶得住啊。所以学会它，首先就是为了看懂代码，然后在编辑出错后知道怎么修改。</p>
+<p>我的修改方式就是，新建一个正常的安卓项目，构建与你想修改的代码同样的环境（包名，类名，及其所需依赖的类）然后把你想要修改的部分先用正常的方式写完，打包后反编译，再直接复制到对应的位置就好了。另外推荐一个AS插件：java2samli，可以很方便的把你写好的Java代码转成smali。还有就是修改的时候如果内部类比较多就需要你细心的去对比了，因为smali每个内部类都产生一个class$1、$2…这样的文件，如果跟原来的顺序不对，代码也要跟着修改。</p>
+<h3 id="打包调试"><a href="#打包调试" class="headerlink" title="打包调试"></a>打包调试</h3><p>反打包就是用apktool，然后签名，我一般签个测试名能在模拟器运行就好，然后检查流程会不会报错，根据错误信息继续修改smali。</p>
+<h2 id="抓包"><a href="#抓包" class="headerlink" title="抓包"></a>抓包</h2><h3 id="charles"><a href="#charles" class="headerlink" title="charles"></a>charles</h3><p>青花瓷，是个很好用的抓取url的软件，并且是免费的，平时偶尔使用可以官网直接下载，如果经常用，它每隔半小时就会关闭一次，可以找个序列号。</p>
+<p>官网：<a href="https://www.charlesproxy.com/" target="_blank" rel="noopener">https://www.charlesproxy.com/</a></p>
+<p>调试和配置：<a href="https://blog.csdn.net/zhangxiang_1102/article/details/77855548" target="_blank" rel="noopener">https://blog.csdn.net/zhangxiang_1102/article/details/77855548</a></p>
+<p>基本这些就够用了。</p>
+<h2 id="手游相关"><a href="#手游相关" class="headerlink" title="手游相关"></a>手游相关</h2><p>原来喜欢玩一些单机手游，又不想肝，经常去找破解版。自己做了这行后，就突然想，能不能也试一下。 最早的手游破解还是很简单的，单机游戏都是把存档文件留在本地，还都是明文，只要有root，改一下data里的文件就能无法无天。遗憾是现在就算是手游，也很少会这样做了，甚至有些单机手游，不联网都不能玩，用云端存数据，接口我们又没法篡改，毫无办法，这也是为什么现在破解手游这么少的原因了。</p>
+<p>不过虽然不能像原来一样直接改数据，却可以通过改手游里的逻辑，比如改一些参数让任务奖励放大、消耗物品不减反增这样的方式来实现。至于怎么操作，我只是总结一下工具，原理就不提了。</p>
+<p>现在的手游，大多是h5、cocos2d、unity3d这三种。 我反编译过一个h5游戏微端，就一个webview加载了一个页面，这类我们可以说放弃就好了，除非你能黑服务器。 看到的比较多的是cocos2d，apktool拿到的assets文件里一般就会放游戏的lua脚本，但都是加密的。unity3d我不太懂，也没有实际需求就还没看。由于也是刚接触手游逆向，好多东西我也没有成功实践，但看了很多文章之后，大概知道了几种常用的工具，记录一下。</p>
+<h3 id="xxtea"><a href="#xxtea" class="headerlink" title="xxtea"></a>xxtea</h3><p>一般cocos2d的游戏都稳定会有一个名为libcocos2dlua.so的文件，通过ida去反编译这个库，能拿到很多有用的信息。很多lua脚本加密都是用xxtea，所以如果你能找到sign和key，就可以用这个工具反编译出明文代码。当然，现在很多脚本都并不是单一的加密，需要多种工具结合去用。52破解大神写了xxtea_decrypt这个工具，输入了签名和key就可以解码了。</p>
+<h3 id="unluac"><a href="#unluac" class="headerlink" title="unluac"></a>unluac</h3><p>如果你用notepad++打开反编译出的lua文件（很多是luac后缀），能看到开头有luaQ、luaR、luaS（代表不同的lua版本），那么你可以用unluac这个工具包来处理。 提一句，这些文件记事本打开是乱码，sublime打开直接是加密的十六进制格式，只有notepad++能看出来一些标志，有些文件这样打开，开头就是用xxtea加密的sign，这也是个取巧拿签名的方式。</p>
+<p>这里贴一个写的很好的lua脚本解密系列贴：<a href="https://www.52pojie.cn/thread-694364-1-1.html" target="_blank" rel="noopener">https://www.52pojie.cn/thread-694364-1-1.html</a></p>
+<h3 id="ljd"><a href="#ljd" class="headerlink" title="ljd"></a>ljd</h3><p>我想反编译的第一个手游，就遇到了跟网上大多数方法都不同的情况，就是luajit字节码加密方式。这也是被认为最难解码的方式，没有一个很完善的工具来用，很多都是介绍了ljd这个脚本，不过还是因为没更新了，基本没什么效果。</p>
+<p>主要是我不搞lua，很多东西不懂，大神说有那个coco2dlua的so库就能做很多事了，可以通过里面一些函数dump出代码。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>简单的记录了自己目前反编译的所有经历，也成功的对两个sdk进行了融合。smali语法感觉熟悉了不少，对虚拟机也进行了一些了解，收获还不错。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div id="donation_div"></div>
+
+<script src="/js/vdonate.js"></script>
+<script>
+var a = new Donate({
+  title: '如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作!', // 可选参数，打赏标题
+  btnText: 'Donate', // 可选参数，打赏按钮文字
+  el: document.getElementById('donation_div'),
+  wechatImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/WXQR.png',
+  alipayImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/AliQR.jpg'
+});
+</script>
+      
+      
+      <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>Post author:  </strong>Yshen
+          </li>
+          <li class="post-copyright-link">
+          <strong>Post link:  </strong>
+          <a href="/2019/01/27/Decomplie/" target="_blank" title="反编译工作总结">http://yshen.me/2019/01/27/Decomplie/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>Copyright Notice:   </strong>
+            All articles in this blog are licensed under <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            unless stating additionally.
+          </li>
+         
+        </ul>
+<div>
+</div></div>
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+      
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2018/12/31/SOTY/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">年终总结——我的2018</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="toc-sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#反编译环境"><span class="nav-number">1.</span> <span class="nav-text">反编译环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#我最常用的工具"><span class="nav-number">2.</span> <span class="nav-text">我最常用的工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#apktool"><span class="nav-number">2.1.</span> <span class="nav-text">apktool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dex2jar-jd-gui"><span class="nav-number">2.2.</span> <span class="nav-text">dex2jar+jd-gui</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jadx"><span class="nav-number">2.3.</span> <span class="nav-text">jadx</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#拿到资源和代码后"><span class="nav-number">3.</span> <span class="nav-text">拿到资源和代码后</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#混淆问题"><span class="nav-number">3.1.</span> <span class="nav-text">混淆问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#库文件和组件化——IDA-Pro"><span class="nav-number">3.2.</span> <span class="nav-text">库文件和组件化——IDA Pro</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反编译后修改程序"><span class="nav-number">4.</span> <span class="nav-text">反编译后修改程序</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#smali"><span class="nav-number">4.1.</span> <span class="nav-text">smali</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#打包调试"><span class="nav-number">4.2.</span> <span class="nav-text">打包调试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#抓包"><span class="nav-number">5.</span> <span class="nav-text">抓包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#charles"><span class="nav-number">5.1.</span> <span class="nav-text">charles</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#手游相关"><span class="nav-number">6.</span> <span class="nav-text">手游相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#xxtea"><span class="nav-number">6.1.</span> <span class="nav-text">xxtea</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#unluac"><span class="nav-number">6.2.</span> <span class="nav-text">unluac</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ljd"><span class="nav-number">6.3.</span> <span class="nav-text">ljd</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">7.</span> <span class="nav-text">小结</span></a></li></ol>
+    
+    </div>
+  </aside>
+
+</section>
+        
+      </div>
+      
+      <footer id="footer">
+  
+
+  <div class="container">
+      	<div class="row">
+	      <p> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></p>
+	      <p id="copyRightEn">Copyright &copy; 2018 - 2019 Yshen&#39;s  Blog All Rights Reserved.</p>
+	      
+	      
+    		<p class="busuanzi_uv">
+				UV : <span id="busuanzi_value_site_uv"></span> |  
+				PV : <span id="busuanzi_value_site_pv"></span>
+		    </p>
+  		   
+		</div>
+
+		
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+    var allheader = document.getElementById("allheader");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight + "px";
+    if (allheader != null) {
+      contentdiv.style.minHeight = document.body.offsetHeight - allheader.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    } else {
+      contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    }
+</script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <div class="ribbon">
+<a href="https://github.com/Yyyyshen">Fork me on GitHub</a>
+</div>
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+
+
+
+
+  <script src="/js/dialog.js"></script>
+
+
+
+
+
+
+
+
+	<div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+
+  </div>
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="myModalLabel">设置</h2>
+      </div>
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+
+
+      <div class="modal-body">
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" onclick="javascript:setFontSize();" aria-expanded="true" aria-controls="collapseOne">
+              正文字号大小
+            </a>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+          <div class="panel-body">
+            您已调整页面字体大小
+          </div>
+        </div>
+      
+
+
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" onclick="javascript:setBackground();" aria-expanded="true" aria-controls="collapseTwo">
+              夜间护眼模式
+            </a>
+        </div>
+          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+          <div class="panel-body">
+            夜间模式已经开启，再次单击按钮即可关闭 
+          </div>
+        </div>
+
+        <div>
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关 于&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+        </div>
+         <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+          <div class="panel-body">
+            Yshen&#39;s  Blog
+          </div>
+          <div class="panel-body">
+            Copyright © 2019 Yshen All Rights Reserved.
+          </div>
+        </div>
+      </div>
+
+
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <div class="modal-footer">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+  
+    <a id="menu-switch"><i class="fa fa-bars fa-lg"></i></a>
+  
+</body>
+</html>
