@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>sdk开发相关整理 | Yshen&#39;s  Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="Library">
+  
+  
+  
+  
+  <meta name="description" content="一直感觉sdk这东西还挺神秘的，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。 开始构建新建一个空项目之后，可以直接按照正常的开发流程来做，直接分包，写代码。最后，把build.gradle中第一行配置修改一下即">
+<meta name="keywords" content="Library">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SDK开发相关整理">
+<meta property="og:url" content="http://yshen.me/2019/02/26/SDK/index.html">
+<meta property="og:site_name" content="Yshen&#39;s  Blog">
+<meta property="og:description" content="一直感觉sdk这东西还挺神秘的，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。 开始构建新建一个空项目之后，可以直接按照正常的开发流程来做，直接分包，写代码。最后，把build.gradle中第一行配置修改一下即">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-03-03T03:33:22.032Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SDK开发相关整理">
+<meta name="twitter:description" content="一直感觉sdk这东西还挺神秘的，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。 开始构建新建一个空项目之后，可以直接按照正常的开发流程来做，直接分包，写代码。最后，把build.gradle中第一行配置修改一下即">
+  
+    <link rel="alternate" href="/atom.xml" title="Yshen&#39;s  Blog" type="application/atom+xml">
+  
+
+  
+
+  <link rel="icon" href="/css/images/mylogo.jpg">
+  <link rel="apple-touch-icon" href="/css/images/mylogo.jpg">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="/js/jquery-3.1.1.min.js"></script>
+  <script src="/js/bootstrap.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css">
+
+  
+    <link rel="stylesheet" href="/css/dialog.css">
+  
+
+  
+
+  
+    <link rel="stylesheet" href="/css/header-post.css">
+  
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/vdonate.css">
+  
+
+</head>
+</html>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+  <div id="container">
+    <div id="wrap">
+      
+        <header>
+
+    <div id="allheader" class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="navbar-inner">
+          
+          <div class="container"> 
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            
+              <a class="brand" style="
+                 margin-top: 0px;" href="#" data-toggle="modal" data-target="#myModal">
+                  <img width="124px" height="124px" alt="Hike News" src="/css/images/mylogo.jpg">
+              </a>
+            
+            
+            <div class="navbar-collapse collapse">
+              <ul class="hnav navbar-nav">
+                
+                  <li> <a class="main-nav-link" href="/">Home</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/archives">Archives</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/categories">Categories</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/tags">Tags</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/about">About</a> </li>
+                
+                  <li><div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div></li>
+            </ul></div>
+          </div>
+                
+      </div>
+    </div>
+
+</header>
+
+
+
+      
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-SDK" style="width: 75%; float:left;" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div id="articleInner" class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      SDK开发相关整理
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2019/02/26/SDK/" class="article-date">
+	  <time datetime="2019-02-26T08:52:07.000Z" itemprop="datePublished">2019-02-26</time>
+	</a>
+
+      
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+	<a class="article-views">
+	<span id="busuanzi_container_page_pv">
+		PV:<span id="busuanzi_value_page_pv"></span>
+	</span>
+	</a>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>一直感觉sdk这东西还挺神秘的，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。</p>
+<h2 id="开始构建"><a href="#开始构建" class="headerlink" title="开始构建"></a>开始构建</h2><p>新建一个空项目之后，可以直接按照正常的开发流程来做，直接分包，写代码。最后，把build.gradle中第一行配置修改一下即可：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apply <span class="string">plugin:</span> <span class="string">'com.android.application'</span>  --&gt;  apply <span class="string">plugin:</span> <span class="string">'com.android.library'</span></span><br><span class="line"><span class="comment">//平时开发应用，生成apk包，sdk相当于开发一个库，用右边的gradle插件，编译时生成aar包</span></span><br></pre></td></tr></table></figure>
+<p>但是似乎不太规范，并且如果你想测试，要么就新建空项目导aar包或者module，要么就直接项目中建Activity测试；但前者你每次修改代码都要重新导文件，后者要把代码在上面的两个插件之间来回调换，测试时改app，发布时改lib，都很麻烦。</p>
+<h3 id="较好的做法"><a href="#较好的做法" class="headerlink" title="较好的做法"></a>较好的做法</h3><p>新建项目后再新建一个空module，在module中进行开发，空项目本身当成测试环境来用。这样添加了依赖之后，两边都随时修改随时测试，gradle是个好东西，要好好利用起来。</p>
+<h3 id="基本框架"><a href="#基本框架" class="headerlink" title="基本框架"></a>基本框架</h3><ul>
+<li>分包：小项目，个人感觉，以职能分包就好了。包内根目录放一个入口类，一般称为XXSDK或者XXSDKManager即可，单例模式给用户即插即用；activity包放各页面活动，adapter放各列表的适配器，bean存放实体类，callback存放回调接口，constant下是常量、状态码、消息接口，db写本地数据库操作（自动登录操作），floatwindow感觉悬浮窗比较有标志性单独存放了一个包，然后初始化、登录/注册、支付分别按照流程分了一个包，最后两个是util和view，基本每个项目都有的工具和自定义view。</li>
+<li>资源文件：跟app开发一样，动画、drawable、layout、value都是要有的，为了尽量保证提供的包体积小，图片选择只提供xxhdpi分辨率，覆盖率较广。AndroidManifest.xml文件，各活动和服务的注册以及参数都写到测试模块中，符合接入环境。</li>
+<li>R.资源id问题：不像jar包那样只包含逻辑src代码，这样的库生成aar会包含资源文件，由于是外接给其他app，这些资源文件中定义的id无法像正常开发一样直接用R.id.xxx引入，会有文件冲突。findviewbyid是安卓开发中需要写很多的语句，这个时候肯定要想到butterknife了，但跟普通app中添加的依赖又不相同，JW大神文档中的接入方式也被反映在module中使用存在一些问题，他本人也好像没做出回复，可能也暂时没有找到完美的解决办法吧；并且，如果接入方的项目引入了同样的包，还要处理依赖冲突，所以决定还是找其他解决办法。</li>
+</ul>
+<p>下面就是为了解决这个问题，在lib中添加的第一个工具类了，这据说是tim团队在处理这个问题时发出来的解决方案，不得不承认，自己可能还是没有动脑去想，因为并不难，原理是反射，通过id名称获取id值。代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MResource</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getIdByName</span><span class="params">(Context context, String className, String name)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//通过上下文，获取包名</span></span><br><span class="line">        String packageName = context.getPackageName();</span><br><span class="line">        Class r;</span><br><span class="line">        <span class="keyword">int</span> id = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//通过包名拿到对应的R文件的class</span></span><br><span class="line">            r = Class.forName(packageName + <span class="string">".R"</span>);</span><br><span class="line">            Class[] classes = r.getClasses();</span><br><span class="line">            Class desireClass = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (Class aClass : classes) &#123;</span><br><span class="line">                <span class="comment">//找到对应的资源类型，id、layout、drawable等</span></span><br><span class="line">                <span class="keyword">if</span> (aClass.getName().split(<span class="string">"\\$"</span>)[<span class="number">1</span>].equals(className)) &#123;</span><br><span class="line">                    desireClass = aClass;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (desireClass != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">//再找到对应类型下该name资源id</span></span><br><span class="line">                id = desireClass.getField(name).getInt(desireClass);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SecurityException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchFieldException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="常用工具类"><a href="#常用工具类" class="headerlink" title="常用工具类"></a>常用工具类</h2><p>一些基本每个项目都能用到的工具类，先拿过来，防止后面找，磨刀不误砍柴工。</p>
+<h3 id="日志工具"><a href="#日志工具" class="headerlink" title="日志工具"></a>日志工具</h3><p>综合了我看到过的各种日志打印类的常用功能和优点，注释都写的很清楚：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 日志工具类</span></span><br><span class="line"><span class="comment"> * 仅在测试环境打印日志，并可以在日志中获取详细信息。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LogUtil</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String TAG = <span class="string">"yxj_sdk"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setTAG</span><span class="params">(String TAG)</span> </span>&#123;</span><br><span class="line">        LogUtil.TAG = TAG;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">LogUtil</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据打包类型判断是否开启日志打印</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isDebuggable</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> BuildConfig.DEBUG;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取日志详细信息，包括类名、方法名、行号等，方便定位</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">getDetail</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();</span><br><span class="line">        <span class="keyword">if</span> (stackTraceElements != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (StackTraceElement element : stackTraceElements) &#123;</span><br><span class="line">                <span class="keyword">if</span> (element.isNativeMethod()) &#123;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (element.getClassName().equals(Thread.class.getName())) &#123;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (element.getClassName().equals(LogUtil.class.getName())) &#123;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">"[ Thread:"</span> + Thread.currentThread().getName() + <span class="string">", at "</span> + element.getClassName() + <span class="string">"."</span> + element.getMethodName()</span><br><span class="line">                        + <span class="string">"("</span> + element.getFileName() + <span class="string">":"</span> + element.getLineNumber() + <span class="string">")"</span> + <span class="string">" ]"</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 各级别日志具体实现方法</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">v</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isDebuggable())</span><br><span class="line">        Log.v(TAG, msg + <span class="string">"-----"</span> + getDetail());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">d</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isDebuggable())</span><br><span class="line">        Log.d(TAG, msg + <span class="string">"-----"</span> + getDetail());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">i</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isDebuggable())</span><br><span class="line">        Log.i(TAG, msg + <span class="string">"-----"</span> + getDetail());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">w</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isDebuggable())</span><br><span class="line">        Log.w(TAG, msg + <span class="string">"-----"</span> + getDetail());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">e</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isDebuggable())</span><br><span class="line">        Log.e(TAG, msg + <span class="string">"-----"</span> + getDetail());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">wtf</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isDebuggable())</span><br><span class="line">        Log.wtf(TAG, msg + <span class="string">"-----"</span> + getDetail());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="单位转换工具"><a href="#单位转换工具" class="headerlink" title="单位转换工具"></a>单位转换工具</h3><p>这里单指手机分辨率对应的各种分辨率之间的转换，安卓由于平台的开放性，设备型号百花齐放，所以屏幕适配简直让人抓狂，写代码处理动画或者定位时当然就不能通过简单的数字来写，那样在不同的尺寸中，得到的效果不同，用户体验差。所以下面的这几个方法还是很常用的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DensityUtil</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据手机的分辨率从 dp 的单位 转成为 px(像素)</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">dip2px</span><span class="params">(Context context, <span class="keyword">float</span> dpValue)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">float</span> scale = getScale(context);</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">int</span>) (dpValue * scale + <span class="number">0.5f</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据手机的分辨率从 px(像素) 的单位 转成为 dp</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">px2dip</span><span class="params">(Context context, <span class="keyword">float</span> pxValue)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">float</span> scale = getScale(context);</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">int</span>) (pxValue / scale + <span class="number">0.5f</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">px2sp</span><span class="params">(Context context, <span class="keyword">float</span> pxValue)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">float</span> fontScale = getScale(context);</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">int</span>) (pxValue / fontScale + <span class="number">0.5f</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">sp2px</span><span class="params">(Context context, <span class="keyword">float</span> spValue)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">float</span> fontScale = getScale(context);</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">int</span>) (spValue * fontScale + <span class="number">0.5f</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">float</span> <span class="title">getScale</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">float</span> fontScale = context.getResources().getDisplayMetrics().scaledDensity;</span><br><span class="line">        <span class="keyword">return</span> findScale(fontScale);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">float</span> <span class="title">findScale</span><span class="params">(<span class="keyword">float</span> scale)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(scale&lt;=<span class="number">1</span>)&#123;</span><br><span class="line">            scale=<span class="number">1</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(scale&lt;=<span class="number">1.5</span>)&#123;</span><br><span class="line">            scale=<span class="number">1.5f</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(scale&lt;=<span class="number">2</span>)&#123;</span><br><span class="line">            scale=<span class="number">2f</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(scale&lt;=<span class="number">3</span>)&#123;</span><br><span class="line">            scale=<span class="number">3f</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> scale;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>还有一些例如弹窗工具、Json解析、倒计时工具（短信验证码用）等，就不一一贴了。这个项目放在了我github上，可以随便看看。</p>
+<h2 id="正式敲代码"><a href="#正式敲代码" class="headerlink" title="正式敲代码"></a>正式敲代码</h2><p>准备工作做好，就是正常的流程，拿到美工提供的切图和尺寸，写layout、drawable，不要忘了测试过度绘制，这个流程还是很快的，接着就是给各页面建立逻辑关系、接后台接口等。这里不可能贴整个代码，就提一些觉得和原来工作中不一样的地方吧。</p>
+<h3 id="Gradle中引入的依赖"><a href="#Gradle中引入的依赖" class="headerlink" title="Gradle中引入的依赖"></a>Gradle中引入的依赖</h3><p>我看了很多sdk的support包，他们选择都是v4，然而我一直想不通为什么，直到现在我也没明白。我个人认为是当初最早大家都用v4，一直没有更新换代，所以我选择了v7，目前没感觉会有什么问题。另外，其他的功能，我感觉应该尽量都选择源生开发，就像之前提过，尽量减少给接入方处理的麻烦，才能提高用户体验，毕竟sdk的用户不仅是玩家，也是开发者。</p>
+<h3 id="登录-注册页面的view切换"><a href="#登录-注册页面的view切换" class="headerlink" title="登录/注册页面的view切换"></a>登录/注册页面的view切换</h3><ul>
+<li><p>页面多，activity又要尽量的少：玩过手游都知道，一般会有用户登录、短信登录、用户注册、短信注册，页面较多，各页面间切换也要考虑完善。为了方便接入，在一个activity中以view栈的方式处理。可在baseActivity中加入以下代码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Stack&lt;View&gt; mViewStack = <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">  </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 使用压栈方式存放各view，便于流程处理</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">pushView2Stack</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mViewStack.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        View peekView = mViewStack.peek();</span><br><span class="line">        peekView.clearFocus();</span><br><span class="line">    &#125;</span><br><span class="line">    mViewStack.push(view);</span><br><span class="line">    setContentView(view);</span><br><span class="line">    view.requestFocus();</span><br><span class="line">&#125;</span><br><span class="line">  </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 弹栈方式获取下层view，处理返回按钮流程</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">popViewFromStack</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mViewStack.size() &gt; <span class="number">1</span>) &#123;</span><br><span class="line">        View popView = mViewStack.pop();</span><br><span class="line">        popView.clearFocus();</span><br><span class="line">        View view = mViewStack.peek();</span><br><span class="line">        setContentView(view);</span><br><span class="line">        view.requestFocus();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        finish();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">  </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 判断此时view栈是否处于栈顶</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">isPeek</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> mViewStack.size() &lt;= <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>透明度处理：v4包下，一般是将activity直接当做dialog，继承其style，并去掉标题栏。由于选择了v7包，处理稍有不同。这里另外要注意的是，每个需要接入方注册的activity要设置相同的theme才能使screenOrientation属性中的behind生效。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 继承AppCompat才能适配v7下的透明，半透明一定要设置第二项 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"YXJTransparent"</span> <span class="attr">parent</span>=<span class="string">"@style/Theme.AppCompat.Light.NoActionBar"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowBackground"</span>&gt;</span>@android:color/transparent<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowIsTranslucent"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowAnimationStyle"</span>&gt;</span>@style/Animation.AppCompat.Dialog<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>重写返回按钮逻辑：结合base类中view栈相关方法，页面内按钮间切换压栈，返回键弹栈。取到栈顶时finish，表示取消登录。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 根据栈中情况处理页面逻辑</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onBackPressed</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (isPeek()) &#123;</span><br><span class="line">        popViewFromStack();</span><br><span class="line">        Toast.makeText(<span class="keyword">this</span>, <span class="string">"取消登录"</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">        <span class="comment">//todo 登录失败回调</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        popViewFromStack();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="悬浮窗"><a href="#悬浮窗" class="headerlink" title="悬浮窗"></a>悬浮窗</h3><ul>
+<li><p>单例模式：悬浮窗应该只存在一个，双重判空上锁加volatile修饰创建实例。这样会造成传入context的要声明为static，黄色警告线提示可能内存泄漏，没有找到很好的解决办法，后来想清楚，觉得不需要担心，因为会在内部流程中详细的说明它的产生和销毁过程，完全能够避免，所以这个问题再可控范围内。</p>
+</li>
+<li><p>悬浮窗适配类型以及绕过权限验证：原来可以通过LayoutParams中的type属性，把悬浮窗设置为dialog相类似的类型，从而绕过系统验证，然而android8.0以后已经封死了这个，所以现在网上绕过权限的方法，都不可行，只要你是悬浮窗，在高版本的系统中就一定需要申请权限。</p>
+<p>思考之后，有了以下解决办法，那就是游戏中的浮标，其实只应该存在于游戏中，在退出或者返回桌面时，并不需要也显示在桌面中，所以，它可以不被定义为悬浮窗，又由于手游一般就是一个activity承载整个游戏，我们只要让其传入该活动而不是context，就能够直接在其内部添加一个view，就仿佛看起来是悬浮窗，实际只是植入一个可拖动的按钮。关键代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//初始化代码</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(Activity activity)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//传入游戏所在activity，而不能只是context</span></span><br><span class="line">    mActivity = activity;</span><br><span class="line">    <span class="comment">//获取屏幕尺寸</span></span><br><span class="line">    DisplayMetrics metrics = <span class="keyword">new</span> DisplayMetrics();</span><br><span class="line">    activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);</span><br><span class="line">    WIDTH = metrics.widthPixels;</span><br><span class="line">    HEIGHT = metrics.heightPixels;</span><br><span class="line">    <span class="comment">//创建悬浮球布局</span></span><br><span class="line">    mFrameLayout = <span class="keyword">new</span> FrameLayout(activity);</span><br><span class="line">    mParams = <span class="keyword">new</span> FrameLayout.LayoutParams(DensityUtil.dip2px(activity, <span class="number">50</span>), DensityUtil.dip2px(activity, <span class="number">50</span>));</span><br><span class="line">    <span class="comment">//设置初始属性</span></span><br><span class="line">    mFrameLayout.setBackgroundResource(MResource.getIdByName(activity, <span class="string">"drawable"</span>, <span class="string">"logo"</span>));</span><br><span class="line">    mParams.gravity = Gravity.START | Gravity.TOP;</span><br><span class="line">    <span class="comment">//此为关键点:get到游戏所在活动的内容窗口，将浮标view添加进去</span></span><br><span class="line">    activity.getWindow().addContentView(mFrameLayout, mParams);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li>事件处理：由于浮标包含拖动、停靠、点击等各种行为，所以直接让onTouchListener返回true在其中通过事件处理点击，拦截掉onClickListener，用户体验会提高。否则的话，单独在click中处理会导致拖拽后也会判定为点击，弹出菜单，而大多数时候用户只是想把浮标拖到其他位置而已。</li>
+<li>悬停：如果最后浮标停留在屏幕中间，应该能够停靠于边缘并在一段时间后隐藏。这里我用了位移动画并在动画结束时处理浮标属性，因为位移动画只是变化表象，点击事件还停留在原来位置。为什么不用属性动画，你试一下就知道了，也可能是我处理方式不对，会出一些怪问题，没有解决。</li>
+</ul>
+<h3 id="游戏退出"><a href="#游戏退出" class="headerlink" title="游戏退出"></a>游戏退出</h3><p>根据很多大厂sdk的处理来看，最好把游戏的退出也交给sdk处理，提供接口给游戏方，便于更好的回收资源，减少崩溃情况的发生。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>感觉事实上，sdk开发还是比app要简单一些，只是很多习惯上的细节需要注意。在这个过程中，对事件分发有了更好的理解，相信也可以逐渐的写自定义view了。积累了一些经验，继续努力进阶，加油，我相信安卓还有下一个十年。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div id="donation_div"></div>
+
+<script src="/js/vdonate.js"></script>
+<script>
+var a = new Donate({
+  title: '如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作!', // 可选参数，打赏标题
+  btnText: 'Donate', // 可选参数，打赏按钮文字
+  el: document.getElementById('donation_div'),
+  wechatImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/WXQR.png',
+  alipayImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/AliQR.jpg'
+});
+</script>
+      
+      
+      <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>Post author:  </strong>Yshen
+          </li>
+          <li class="post-copyright-link">
+          <strong>Post link:  </strong>
+          <a href="/2019/02/26/SDK/" target="_blank" title="SDK开发相关整理">http://yshen.me/2019/02/26/SDK/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>Copyright Notice:   </strong>
+            All articles in this blog are licensed under <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            unless stating additionally.
+          </li>
+         
+        </ul>
+<div>
+</div></div>
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+      
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/01/27/Decomplie/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">反编译工作总结</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="toc-sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#开始构建"><span class="nav-number">1.</span> <span class="nav-text">开始构建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#较好的做法"><span class="nav-number">1.1.</span> <span class="nav-text">较好的做法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本框架"><span class="nav-number">1.2.</span> <span class="nav-text">基本框架</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用工具类"><span class="nav-number">2.</span> <span class="nav-text">常用工具类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#日志工具"><span class="nav-number">2.1.</span> <span class="nav-text">日志工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单位转换工具"><span class="nav-number">2.2.</span> <span class="nav-text">单位转换工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他"><span class="nav-number">2.3.</span> <span class="nav-text">其他</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#正式敲代码"><span class="nav-number">3.</span> <span class="nav-text">正式敲代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Gradle中引入的依赖"><span class="nav-number">3.1.</span> <span class="nav-text">Gradle中引入的依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#登录-注册页面的view切换"><span class="nav-number">3.2.</span> <span class="nav-text">登录/注册页面的view切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#悬浮窗"><span class="nav-number">3.3.</span> <span class="nav-text">悬浮窗</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#游戏退出"><span class="nav-number">3.4.</span> <span class="nav-text">游戏退出</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li></ol>
+    
+    </div>
+  </aside>
+
+</section>
+        
+      </div>
+      
+      <footer id="footer">
+  
+
+  <div class="container">
+      	<div class="row">
+	      <p> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></p>
+	      <p id="copyRightEn">Copyright &copy; 2018 - 2019 Yshen&#39;s  Blog All Rights Reserved.</p>
+	      
+	      
+    		<p class="busuanzi_uv">
+				UV : <span id="busuanzi_value_site_uv"></span> |  
+				PV : <span id="busuanzi_value_site_pv"></span>
+		    </p>
+  		   
+		</div>
+
+		
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+    var allheader = document.getElementById("allheader");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight + "px";
+    if (allheader != null) {
+      contentdiv.style.minHeight = document.body.offsetHeight - allheader.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    } else {
+      contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    }
+</script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <div class="ribbon">
+<a href="https://github.com/Yyyyshen">Fork me on GitHub</a>
+</div>
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+
+
+
+
+  <script src="/js/dialog.js"></script>
+
+
+
+
+
+
+
+
+	<div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+
+  </div>
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="myModalLabel">设置</h2>
+      </div>
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+
+
+      <div class="modal-body">
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" onclick="javascript:setFontSize();" aria-expanded="true" aria-controls="collapseOne">
+              正文字号大小
+            </a>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+          <div class="panel-body">
+            您已调整页面字体大小
+          </div>
+        </div>
+      
+
+
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" onclick="javascript:setBackground();" aria-expanded="true" aria-controls="collapseTwo">
+              夜间护眼模式
+            </a>
+        </div>
+          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+          <div class="panel-body">
+            夜间模式已经开启，再次单击按钮即可关闭 
+          </div>
+        </div>
+
+        <div>
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关 于&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+        </div>
+         <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+          <div class="panel-body">
+            Yshen&#39;s  Blog
+          </div>
+          <div class="panel-body">
+            Copyright © 2019 Yshen All Rights Reserved.
+          </div>
+        </div>
+      </div>
+
+
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <div class="modal-footer">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+  
+    <a id="menu-switch"><i class="fa fa-bars fa-lg"></i></a>
+  
+</body>
+</html>
