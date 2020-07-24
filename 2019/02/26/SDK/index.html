@@ -11,18 +11,18 @@
   
   
   
-  <meta name="description" content="一直感觉sdk这东西还挺神秘的，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。 开始构建新建一个空项目之后，可以直接按照正常的开发流程来做，直接分包，写代码。最后，把build.gradle中第一行配置修改一下即">
+  <meta name="description" content="一直感觉sdk很难，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。 开始构建新建一个空项目之后，可以直接按照正常的开发流程来做，直接分包，写代码。最后，把build.gradle中第一行配置修改一下即可： 12a">
 <meta name="keywords" content="Library">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SDK开发相关整理">
 <meta property="og:url" content="http://yshen.me/2019/02/26/SDK/index.html">
 <meta property="og:site_name" content="Yshen&#39;s  Blog">
-<meta property="og:description" content="一直感觉sdk这东西还挺神秘的，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。 开始构建新建一个空项目之后，可以直接按照正常的开发流程来做，直接分包，写代码。最后，把build.gradle中第一行配置修改一下即">
+<meta property="og:description" content="一直感觉sdk很难，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。 开始构建新建一个空项目之后，可以直接按照正常的开发流程来做，直接分包，写代码。最后，把build.gradle中第一行配置修改一下即可： 12a">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-03-05T15:54:24.085Z">
+<meta property="og:updated_time" content="2020-07-24T09:49:04.694Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SDK开发相关整理">
-<meta name="twitter:description" content="一直感觉sdk这东西还挺神秘的，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。 开始构建新建一个空项目之后，可以直接按照正常的开发流程来做，直接分包，写代码。最后，把build.gradle中第一行配置修改一下即">
+<meta name="twitter:description" content="一直感觉sdk很难，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。 开始构建新建一个空项目之后，可以直接按照正常的开发流程来做，直接分包，写代码。最后，把build.gradle中第一行配置修改一下即可： 12a">
   
     <link rel="alternate" href="/atom.xml" title="Yshen&#39;s  Blog" type="application/atom+xml">
   
@@ -194,7 +194,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>一直感觉sdk这东西还挺神秘的，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。</p>
+        <p>一直感觉sdk很难，亲身接触之后才知道，在安卓端就相当于开发一个库，为其他App提供一些额外功能。但也有很多与应用开发的不同点和注意事项，还是要总结一下。这是一个游戏sdk，类似九游那种，给游戏提供登录/注册、充值功能，给用户提供一个悬浮窗管理个人账户。</p>
 <h2 id="开始构建"><a href="#开始构建" class="headerlink" title="开始构建"></a>开始构建</h2><p>新建一个空项目之后，可以直接按照正常的开发流程来做，直接分包，写代码。最后，把build.gradle中第一行配置修改一下即可：</p>
 <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apply <span class="string">plugin:</span> <span class="string">'com.android.application'</span>  --&gt;  apply <span class="string">plugin:</span> <span class="string">'com.android.library'</span></span><br><span class="line"><span class="comment">//平时开发应用，生成apk包，sdk相当于开发一个库，用右边的gradle插件，编译时生成aar包</span></span><br></pre></td></tr></table></figure>
 <p>但是似乎不太规范，并且如果你想测试，要么就新建空项目导aar包或者module，要么就直接项目中建Activity测试；但前者你每次修改代码都要重新导文件，后者要把代码在上面的两个插件之间来回调换，测试时改app，发布时改lib，都很麻烦。</p>
@@ -314,6 +314,15 @@ var a = new Donate({
   
     
 <nav id="article-nav">
+  
+    <a href="/2020/02/02/hello-world/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Hello World
+        
+      </div>
+    </a>
   
   
     <a href="/2019/01/27/Decomplie/" id="article-nav-older" class="article-nav-link-wrap">
