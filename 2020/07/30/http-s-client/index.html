@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>使用boost实现http(s)客户端请求 | Yshen&#39;s  Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="boost">
+  
+  
+  
+  
+  <meta name="description" content="近一年的时间里，从了解底层类SDK的使用，辅助客户完成对接，到理解原理，再到读改代码；让我提前了进入C++领域的节奏。当然不能满足于了解表面，修改简单需求，想着什么时候也能自己完整去实现这样一个底层的产品。 由于公司SDK产品本身是类似一个转发服务器机制，所以对c++的学习也直接从网络库入手，主要应用asio和beast，还有线程以及协程方式的应用。计划是从客户端实现起，到服务端实现，再结合起来实">
+<meta name="keywords" content="boost">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Boost实现Http(s)客户端请求">
+<meta property="og:url" content="http://yshen.me/2020/07/30/http-s-client/index.html">
+<meta property="og:site_name" content="Yshen&#39;s  Blog">
+<meta property="og:description" content="近一年的时间里，从了解底层类SDK的使用，辅助客户完成对接，到理解原理，再到读改代码；让我提前了进入C++领域的节奏。当然不能满足于了解表面，修改简单需求，想着什么时候也能自己完整去实现这样一个底层的产品。 由于公司SDK产品本身是类似一个转发服务器机制，所以对c++的学习也直接从网络库入手，主要应用asio和beast，还有线程以及协程方式的应用。计划是从客户端实现起，到服务端实现，再结合起来实">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-30T15:03:03.884Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Boost实现Http(s)客户端请求">
+<meta name="twitter:description" content="近一年的时间里，从了解底层类SDK的使用，辅助客户完成对接，到理解原理，再到读改代码；让我提前了进入C++领域的节奏。当然不能满足于了解表面，修改简单需求，想着什么时候也能自己完整去实现这样一个底层的产品。 由于公司SDK产品本身是类似一个转发服务器机制，所以对c++的学习也直接从网络库入手，主要应用asio和beast，还有线程以及协程方式的应用。计划是从客户端实现起，到服务端实现，再结合起来实">
+  
+    <link rel="alternate" href="/atom.xml" title="Yshen&#39;s  Blog" type="application/atom+xml">
+  
+
+  
+
+  <link rel="icon" href="/css/images/mylogo.jpg">
+  <link rel="apple-touch-icon" href="/css/images/mylogo.jpg">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="/js/jquery-3.1.1.min.js"></script>
+  <script src="/js/bootstrap.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css">
+
+  
+    <link rel="stylesheet" href="/css/dialog.css">
+  
+
+  
+
+  
+    <link rel="stylesheet" href="/css/header-post.css">
+  
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/vdonate.css">
+  
+
+</head>
+</html>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+  <div id="container">
+    <div id="wrap">
+      
+        <header>
+
+    <div id="allheader" class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="navbar-inner">
+          
+          <div class="container"> 
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            
+              <a class="brand" style="
+                 margin-top: 0px;" href="#" data-toggle="modal" data-target="#myModal">
+                  <img width="124px" height="124px" alt="Hike News" src="/css/images/mylogo.jpg">
+              </a>
+            
+            
+            <div class="navbar-collapse collapse">
+              <ul class="hnav navbar-nav">
+                
+                  <li> <a class="main-nav-link" href="/">Home</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/archives">Archives</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/categories">Categories</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/tags">Tags</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/about">About</a> </li>
+                
+                  <li><div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div></li>
+            </ul></div>
+          </div>
+                
+      </div>
+    </div>
+
+</header>
+
+
+
+      
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-http-s-client" style="width: 75%; float:left;" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div id="articleInner" class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      使用Boost实现Http(s)客户端请求
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2020/07/30/http-s-client/" class="article-date">
+	  <time datetime="2020-07-30T14:02:49.000Z" itemprop="datePublished">2020-07-30</time>
+	</a>
+
+      
+    <a class="article-category-link" href="/categories/C/">C++</a>
+
+      
+	<a class="article-views">
+	<span id="busuanzi_container_page_pv">
+		PV:<span id="busuanzi_value_page_pv"></span>
+	</span>
+	</a>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>近一年的时间里，从了解底层类SDK的使用，辅助客户完成对接，到理解原理，再到读改代码；让我提前了进入C++领域的节奏。当然不能满足于了解表面，修改简单需求，想着什么时候也能自己完整去实现这样一个底层的产品。</p>
+<p>由于公司SDK产品本身是类似一个转发服务器机制，所以对c++的学习也直接从网络库入手，主要应用asio和beast，还有线程以及协程方式的应用。计划是从客户端实现起，到服务端实现，再结合起来实现转发器。最后回过头来读一遍产品代码，争取完全读透。</p>
+<h2 id="简单实现"><a href="#简单实现" class="headerlink" title="简单实现"></a>简单实现</h2><p>从官网例子学起，用了几天敲了同步/异步/协程三种方式的Http/Https客户端示例。</p>
+<p>同步和异步的方式很容易理解，就不照搬照抄了，可以去官网或者我的github上参考，有一些延申知识的注释个人觉得还是有用的：</p>
+<p><a href="https://github.com/Yyyyshen/CppLearningDemos" target="_blank" rel="noopener">https://github.com/Yyyyshen/CppLearningDemos</a></p>
+<p>（IDE选用的是CLion，配合Cmake做的库链接和编译配置。）</p>
+<p>单独拿出来比较有综合性的协程版Https示例来说吧。</p>
+<h3 id="头文件"><a href="#头文件" class="headerlink" title="头文件"></a>头文件</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/beast/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/beast/http.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/beast/version.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/beast/ssl.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/asio/connect.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/asio/ip/tcp.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/asio/spawn.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/asio/ssl/error.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/asio/ssl/stream.hpp&gt;</span></span></span><br><span class="line"><span class="comment">//为代码简易使用如下定义，官网更加简略，但个人觉得刚开始学习，不要怕麻烦写全可以更好的理解库结构</span></span><br><span class="line"><span class="keyword">using</span> tcp = boost::asio::ip::tcp;       <span class="comment">// from &lt;boost/asio/ip/tcp.hpp&gt;</span></span><br><span class="line"><span class="keyword">namespace</span> http = boost::beast::http;    <span class="comment">// from &lt;boost/beast/http.hpp&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="主要代码"><a href="#主要代码" class="headerlink" title="主要代码"></a>主要代码</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//方便测试，定义一些全局变量</span></span><br><span class="line"><span class="keyword">auto</span> <span class="keyword">const</span> ssl_host = <span class="string">"127.0.0.1"</span>;<span class="comment">//配合写的本地服务端使用</span></span><br><span class="line"><span class="keyword">auto</span> <span class="keyword">const</span> ssl_port = <span class="string">"445"</span>;</span><br><span class="line"><span class="keyword">auto</span> <span class="keyword">const</span> ssl_target = <span class="string">"/"</span>;</span><br><span class="line"><span class="keyword">int</span> version = <span class="number">11</span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">coHttpsRequest</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//计时</span></span><br><span class="line">    <span class="keyword">auto</span> start_time = boost::get_system_time();</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Ready, GO!"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    coHttpsRequest();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">long</span> end_time = (boost::get_system_time() - start_time).total_milliseconds();</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Completed in: "</span> &lt;&lt; end_time &lt;&lt; <span class="string">"ms"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//参数用std::string类型的目的应该是防止回调时const char*类型已经被回收变成野指针，之前遇到过类似问题</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">do_ssl_session</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="built_in">std</span>::<span class="built_in">string</span> <span class="keyword">const</span> &amp;host_,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="built_in">std</span>::<span class="built_in">string</span> <span class="keyword">const</span> &amp;port_,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="built_in">std</span>::<span class="built_in">string</span> <span class="keyword">const</span> &amp;target_,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> version_,</span></span></span><br><span class="line"><span class="function"><span class="params">        boost::asio::io_context &amp;ioc,</span></span></span><br><span class="line"><span class="function"><span class="params">        ssl::context &amp;ctx,</span></span></span><br><span class="line"><span class="function"><span class="params">        boost::asio::yield_context yield</span></span></span><br><span class="line"><span class="function"><span class="params">)</span> </span>&#123;</span><br><span class="line">    boost::beast::error_code ec;</span><br><span class="line">    <span class="comment">//解析器</span></span><br><span class="line">    tcp::<span class="function">resolver <span class="title">resolver</span><span class="params">(ioc)</span></span>;</span><br><span class="line">    <span class="comment">//tcp流包装为ssl流</span></span><br><span class="line">    boost::beast::ssl_stream&lt;boost::beast::tcp_stream&gt; stream(ioc, ctx);</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * SNI（Server Name Indication）定义在RFC 4366，是一项用于改善SSL/TLS的技术，在SSLv3/TLSv1中被启用。</span></span><br><span class="line"><span class="comment">     * 它允许客户端在发起SSL握手请求时（具体说来，是客户端发出SSL请求中的ClientHello阶段），就提交请求的Host信息，使得服务器能够切换到正确的域并返回相应的证书。</span></span><br><span class="line"><span class="comment">     * 在 TLSv1.2（OpenSSL 0.9.8）版本开始支持。</span></span><br><span class="line"><span class="comment">     * 少部分网站会需要做这一步。</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">if</span> (!SSL_set_tlsext_host_name(stream.native_handle(), host_.c_str())) &#123;</span><br><span class="line">        ec.assign(<span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(::ERR_get_error()), boost::asio::error::get_ssl_category());</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cerr</span> &lt;&lt; ec.message() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//解析域名</span></span><br><span class="line">    <span class="keyword">auto</span> <span class="keyword">const</span> results = resolver.async_resolve(host_, port_, yield[ec]);</span><br><span class="line">    <span class="keyword">if</span> (ec)</span><br><span class="line">        <span class="keyword">return</span> fail(ec, <span class="string">"resolve"</span>);</span><br><span class="line">    <span class="comment">//设置超时</span></span><br><span class="line">    boost::beast::get_lowest_layer(stream)</span><br><span class="line">            .expires_after(<span class="built_in">std</span>::chrono::seconds(<span class="number">30</span>));</span><br><span class="line">    <span class="comment">//连接</span></span><br><span class="line">    boost::beast::get_lowest_layer(stream)</span><br><span class="line">            .async_connect(results, yield[ec]);</span><br><span class="line">    <span class="keyword">if</span> (ec)</span><br><span class="line">        <span class="keyword">return</span> fail(ec, <span class="string">"connect"</span>);</span><br><span class="line">    <span class="comment">//设置超时并握手</span></span><br><span class="line">    boost::beast::get_lowest_layer(stream)</span><br><span class="line">            .expires_after(<span class="built_in">std</span>::chrono::seconds(<span class="number">30</span>));</span><br><span class="line">    stream.async_handshake(ssl::stream_base::client, yield[ec]);</span><br><span class="line">    <span class="keyword">if</span> (ec)</span><br><span class="line">        <span class="keyword">return</span> fail(ec, <span class="string">"handshake"</span>);</span><br><span class="line">    <span class="comment">//设置http请求体并发出请求</span></span><br><span class="line">    http::request&lt;http::empty_body&gt; req&#123;http::verb::get, target, version&#125;;</span><br><span class="line">    req.<span class="built_in">set</span>(http::field::host, host_);</span><br><span class="line">    req.<span class="built_in">set</span>(http::field::user_agent, BOOST_BEAST_VERSION_STRING);</span><br><span class="line">    boost::beast::get_lowest_layer(stream)</span><br><span class="line">            .expires_after(<span class="built_in">std</span>::chrono::seconds(<span class="number">30</span>));</span><br><span class="line">    http::async_write(stream, req, yield[ec]);</span><br><span class="line">    <span class="keyword">if</span> (ec)</span><br><span class="line">        <span class="keyword">return</span> fail(ec, <span class="string">"write"</span>);</span><br><span class="line">    <span class="comment">//创建流接收响应体</span></span><br><span class="line">    http::response&lt;http::dynamic_body&gt; res;</span><br><span class="line">    boost::beast::flat_buffer buffer;</span><br><span class="line">    http::async_read(stream, buffer, res, yield[ec]);</span><br><span class="line">    <span class="keyword">if</span> (ec)</span><br><span class="line">        <span class="keyword">return</span> fail(ec, <span class="string">"read"</span>);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; res &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="comment">//关闭流</span></span><br><span class="line">    boost::beast::get_lowest_layer(stream)</span><br><span class="line">            .expires_after(<span class="built_in">std</span>::chrono::seconds(<span class="number">30</span>));</span><br><span class="line">    stream.async_shutdown(yield[ec]);</span><br><span class="line">    <span class="keyword">if</span> (ec == boost::asio::error::eof) &#123;</span><br><span class="line">        ec = &#123;&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (ec)</span><br><span class="line">        <span class="keyword">return</span> fail(ec, <span class="string">"shutdown"</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">coHttpsRequest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//创建必要的两个上下文</span></span><br><span class="line">    boost::asio::io_context ioc;</span><br><span class="line">    ssl::<span class="function">context <span class="title">ctx</span><span class="params">(ssl::context::tlsv12_client)</span></span>;</span><br><span class="line">	<span class="comment">//设置证书验证参数 客户端理论上不验证也可保证请求正确</span></span><br><span class="line">    <span class="comment">//使用自己的证书文件测试还存在问题，需要了解证书工作方式之后再来研</span></span><br><span class="line">    ctx.set_default_verify_paths();</span><br><span class="line">    ctx.set_verify_mode(ssl::verify_peer);</span><br><span class="line">    <span class="comment">//使用spawn开启一个协程</span></span><br><span class="line">    boost::asio::spawn(ioc, <span class="built_in">std</span>::bind(</span><br><span class="line">            &amp;do_ssl_session,</span><br><span class="line">            <span class="built_in">std</span>::<span class="built_in">string</span>(ssl_host),</span><br><span class="line">            <span class="built_in">std</span>::<span class="built_in">string</span>(ssl_port),</span><br><span class="line">            <span class="built_in">std</span>::<span class="built_in">string</span>(ssl_target),</span><br><span class="line">            version,</span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">             std::ref 用于包装按引用传递的值。</span></span><br><span class="line"><span class="comment">             std::cref 用于包装按const引用传递的值。</span></span><br><span class="line"><span class="comment">             为什么需要std::ref和std::cref</span></span><br><span class="line"><span class="comment">             bind()是一个函数模板，它的原理是根据已有的模板，生成一个函数。</span></span><br><span class="line"><span class="comment">             但是由于bind()不知道生成的函数执行的时候，传递进来的参数是否还有效，在实现时，默认对参数进行了拷贝。</span></span><br><span class="line"><span class="comment">             所以如果想传递引用保证效率，std::ref和std::cref就派上用场了。</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">            <span class="built_in">std</span>::ref(ioc),</span><br><span class="line">            <span class="built_in">std</span>::ref(ctx),</span><br><span class="line">            <span class="built_in">std</span>::placeholders::_1</span><br><span class="line">    ));</span><br><span class="line">    ioc.run();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>代码中每一步都做了详细注释，并且在一些特殊的方法使用上也去了解了使用其的原因。</p>
+<h3 id="同步、异步和协程"><a href="#同步、异步和协程" class="headerlink" title="同步、异步和协程"></a>同步、异步和协程</h3><p>之前只知道同步就是按代码流程一步步走，某一步卡住会阻塞进程直到整块代码完成；异步就是在每一步使用一个通知，在该步骤结束时会调用该方法进行后续操作；而对于协程一直只知道一个概念，并且感觉大家都在用。</p>
+<p>经过这个例子的学习，感受就是，协程可以说是两种方式的一种结合，代码结构上就像同步实现方式一样，一行行执行，不会像异步一样需要定义大量的回调函数，代码逻辑更加清晰；而执行起来，又像是异步的，在每个步骤中使用yield，当执行到这一步时，在得到结果之前会挂起当前协程去执行其他协程，当得到回调时再回来继续进行后续逻辑。整体上又比开多个线程去这样处理开销会小很多，具体原因就需要了解cpu工作机制，这里不详谈（因为我也没太懂，查询了一些文章大概做了了解= =）。</p>
+<h3 id="接下来"><a href="#接下来" class="headerlink" title="接下来"></a>接下来</h3><p>客户端比较简单，遇到的问题很少。后面会整理服务端实现，还有一些cmake配置。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div id="donation_div"></div>
+
+<script src="/js/vdonate.js"></script>
+<script>
+var a = new Donate({
+  title: '如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作!', // 可选参数，打赏标题
+  btnText: 'Donate', // 可选参数，打赏按钮文字
+  el: document.getElementById('donation_div'),
+  wechatImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/WXQR.png',
+  alipayImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/AliQR.jpg'
+});
+</script>
+      
+      
+      <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>Post author:  </strong>Yshen
+          </li>
+          <li class="post-copyright-link">
+          <strong>Post link:  </strong>
+          <a href="/2020/07/30/http-s-client/" target="_blank" title="使用Boost实现Http(s)客户端请求">http://yshen.me/2020/07/30/http-s-client/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>Copyright Notice:   </strong>
+            All articles in this blog are licensed under <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            unless stating additionally.
+          </li>
+         
+        </ul>
+<div>
+</div></div>
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+      
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/07/24/Divider/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">=====并不华丽的分割线=====</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="toc-sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简单实现"><span class="nav-number">1.</span> <span class="nav-text">简单实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#头文件"><span class="nav-number">1.1.</span> <span class="nav-text">头文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主要代码"><span class="nav-number">1.2.</span> <span class="nav-text">主要代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#个人理解"><span class="nav-number">2.</span> <span class="nav-text">个人理解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#同步、异步和协程"><span class="nav-number">2.1.</span> <span class="nav-text">同步、异步和协程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接下来"><span class="nav-number">2.2.</span> <span class="nav-text">接下来</span></a></li></ol></li></ol>
+    
+    </div>
+  </aside>
+
+</section>
+        
+      </div>
+      
+      <footer id="footer">
+  
+
+  <div class="container">
+      	<div class="row">
+	      <p> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></p>
+	      <p id="copyRightEn">Copyright &copy; 2018 - 2020 Yshen&#39;s  Blog All Rights Reserved.</p>
+	      
+	      
+    		<p class="busuanzi_uv">
+				UV : <span id="busuanzi_value_site_uv"></span> |  
+				PV : <span id="busuanzi_value_site_pv"></span>
+		    </p>
+  		   
+		</div>
+
+		
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+    var allheader = document.getElementById("allheader");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight + "px";
+    if (allheader != null) {
+      contentdiv.style.minHeight = document.body.offsetHeight - allheader.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    } else {
+      contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    }
+</script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <div class="ribbon">
+<a href="https://github.com/Yyyyshen">Fork me on GitHub</a>
+</div>
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+
+
+
+
+  <script src="/js/dialog.js"></script>
+
+
+
+
+
+
+
+
+	<div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+
+  </div>
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="myModalLabel">设置</h2>
+      </div>
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+
+
+      <div class="modal-body">
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" onclick="javascript:setFontSize();" aria-expanded="true" aria-controls="collapseOne">
+              正文字号大小
+            </a>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+          <div class="panel-body">
+            您已调整页面字体大小
+          </div>
+        </div>
+      
+
+
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" onclick="javascript:setBackground();" aria-expanded="true" aria-controls="collapseTwo">
+              夜间护眼模式
+            </a>
+        </div>
+          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+          <div class="panel-body">
+            夜间模式已经开启，再次单击按钮即可关闭 
+          </div>
+        </div>
+
+        <div>
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关 于&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+        </div>
+         <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+          <div class="panel-body">
+            Yshen&#39;s  Blog
+          </div>
+          <div class="panel-body">
+            Copyright © 2020 Yshen All Rights Reserved.
+          </div>
+        </div>
+      </div>
+
+
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <div class="modal-footer">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+  
+    <a id="menu-switch"><i class="fa fa-bars fa-lg"></i></a>
+  
+</body>
+</html>
