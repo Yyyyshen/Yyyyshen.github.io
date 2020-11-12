@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>decomplie2 | Yshen&#39;s  Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="Decompile">
+  
+  
+  
+  
+  <meta name="description" content="近期有个逆向任务，为了更全面了解信息，打算从iOS和Android双端同时入手，之前也并没有整理iOS的部分，这次也遇到了些新坑，一并都总结一下。 具体的操作流程呢，网上文章也是一大堆的，同样的东西就直接贴链接就好了，这里说下大致思路和网上一些教程没有提到的小坑，毕竟逆向的东西很多都还是很早之前的，对新设备新系统都不太适用。 iOS逆向基本流程砸壳iOS砸壳基本需求：越狱手机一部 常用工具：Clu">
+<meta name="keywords" content="Decompile">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Decomplie2">
+<meta property="og:url" content="http://yshen.me/2020/11/12/Decomplie2/index.html">
+<meta property="og:site_name" content="Yshen&#39;s  Blog">
+<meta property="og:description" content="近期有个逆向任务，为了更全面了解信息，打算从iOS和Android双端同时入手，之前也并没有整理iOS的部分，这次也遇到了些新坑，一并都总结一下。 具体的操作流程呢，网上文章也是一大堆的，同样的东西就直接贴链接就好了，这里说下大致思路和网上一些教程没有提到的小坑，毕竟逆向的东西很多都还是很早之前的，对新设备新系统都不太适用。 iOS逆向基本流程砸壳iOS砸壳基本需求：越狱手机一部 常用工具：Clu">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-11-12T04:30:09.838Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Decomplie2">
+<meta name="twitter:description" content="近期有个逆向任务，为了更全面了解信息，打算从iOS和Android双端同时入手，之前也并没有整理iOS的部分，这次也遇到了些新坑，一并都总结一下。 具体的操作流程呢，网上文章也是一大堆的，同样的东西就直接贴链接就好了，这里说下大致思路和网上一些教程没有提到的小坑，毕竟逆向的东西很多都还是很早之前的，对新设备新系统都不太适用。 iOS逆向基本流程砸壳iOS砸壳基本需求：越狱手机一部 常用工具：Clu">
+  
+    <link rel="alternate" href="/atom.xml" title="Yshen&#39;s  Blog" type="application/atom+xml">
+  
+
+  
+
+  <link rel="icon" href="/css/images/mylogo.jpg">
+  <link rel="apple-touch-icon" href="/css/images/mylogo.jpg">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="/js/jquery-3.1.1.min.js"></script>
+  <script src="/js/bootstrap.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css">
+
+  
+    <link rel="stylesheet" href="/css/dialog.css">
+  
+
+  
+
+  
+    <link rel="stylesheet" href="/css/header-post.css">
+  
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/vdonate.css">
+  
+
+</head>
+</html>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+  <div id="container">
+    <div id="wrap">
+      
+        <header>
+
+    <div id="allheader" class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="navbar-inner">
+          
+          <div class="container"> 
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            
+              <a class="brand" style="
+                 margin-top: 0px;" href="#" data-toggle="modal" data-target="#myModal">
+                  <img width="124px" height="124px" alt="Hike News" src="/css/images/mylogo.jpg">
+              </a>
+            
+            
+            <div class="navbar-collapse collapse">
+              <ul class="hnav navbar-nav">
+                
+                  <li> <a class="main-nav-link" href="/">Home</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/archives">Archives</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/categories">Categories</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/tags">Tags</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/about">About</a> </li>
+                
+                  <li><div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div></li>
+            </ul></div>
+          </div>
+                
+      </div>
+    </div>
+
+</header>
+
+
+
+      
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-Decomplie2" style="width: 75%; float:left;" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div id="articleInner" class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      Decomplie2
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2020/11/12/Decomplie2/" class="article-date">
+	  <time datetime="2020-11-12T03:06:00.000Z" itemprop="datePublished">2020-11-12</time>
+	</a>
+
+      
+    <a class="article-category-link" href="/categories/iOS/">iOS</a>
+
+      
+	<a class="article-views">
+	<span id="busuanzi_container_page_pv">
+		PV:<span id="busuanzi_value_page_pv"></span>
+	</span>
+	</a>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>近期有个逆向任务，为了更全面了解信息，打算从iOS和Android双端同时入手，之前也并没有整理iOS的部分，这次也遇到了些新坑，一并都总结一下。</p>
+<p>具体的操作流程呢，网上文章也是一大堆的，同样的东西就直接贴链接就好了，这里说下大致思路和网上一些教程没有提到的小坑，毕竟逆向的东西很多都还是很早之前的，对新设备新系统都不太适用。</p>
+<h2 id="iOS逆向基本流程"><a href="#iOS逆向基本流程" class="headerlink" title="iOS逆向基本流程"></a>iOS逆向基本流程</h2><h3 id="砸壳"><a href="#砸壳" class="headerlink" title="砸壳"></a>砸壳</h3><p>iOS砸壳基本需求：越狱手机一部</p>
+<p>常用工具：Clutch/dumpdecrypted/frida-ios-dump/CrackerXI</p>
+<p>前三个需要一些环境和自己操作一些命令，最后一个是越狱商店下载后手机上自动脱壳然后导出即可。这里有个兄弟总结的相对全面：<a href="https://www.jianshu.com/p/1991854c65af" target="_blank" rel="noopener">https://www.jianshu.com/p/1991854c65af</a></p>
+<p>我最开始用了iphone6，12.4.7，版本相对高一些，完美越狱似乎不可行，使用了爱思助手的CheckRa1n，几乎可以越狱所有版本，但不是完美越狱，装部分Cydia插件需要重启，重启后需要再次操作越狱。经过尝试，以上几乎所有砸壳方法都会遇到各种报错，本打算手动砸一下，突然想起之前有几台4和5，装的都是ios8和9，不妨一试。最终在iOS9.0.1上成功用Clutch和dumpdecrypted顺利砸壳。</p>
+<h3 id="Dump头文件"><a href="#Dump头文件" class="headerlink" title="Dump头文件"></a>Dump头文件</h3><p>经典的class-dump：<a href="http://stevenygard.com/projects/class-dump/" target="_blank" rel="noopener">http://stevenygard.com/projects/class-dump/</a></p>
+<p>砸壳拿到二进制文件或者IPA后，直接运行命令 class-dump filename -H -o outputdir</p>
+<p>值得一提的是，如果是swift+oc混编的原生项目，官方的这个工具会不适配，MonkeyDev那边已经做了改进版：<a href="https://github.com/AloneMonkey/MonkeyDev/blob/master/bin/class-dump" target="_blank" rel="noopener">https://github.com/AloneMonkey/MonkeyDev/blob/master/bin/class-dump</a></p>
+<p>不由得感叹这些提供工具的人才是真的强，我还是停留在使用层面。</p>
+<h3 id="注入调试"><a href="#注入调试" class="headerlink" title="注入调试"></a>注入调试</h3><p>这里使用上面已经提到的MonkeyDev</p>
+<p>在.xm文件内可根据上一步dump出的头文件中获取的参数和方法进行动态注入和调试。</p>
+<p>wiki上也都写得很清楚。</p>
+<p>需要注意的是，在macOS10.15上，新版xcode有一个Specifications路径不一样，在MonkeyDev安装过程中会读取这个地方，老版本升上来的不会有问题，所以可能也没什么人提到这个。最近在帮别人新电脑装的时候遇到了，最简单的办法就是找一个10.14的电脑，把未找到的那个路径和文件都拷贝一份就ok了。</p>
+<h2 id="Android一些小补充"><a href="#Android一些小补充" class="headerlink" title="Android一些小补充"></a>Android一些小补充</h2><h3 id="砸壳-1"><a href="#砸壳-1" class="headerlink" title="砸壳"></a>砸壳</h3><p>不管是什么壳，安卓砸壳的本质就是从内存中动态dump出dex。注意点在于android4.4和5.0这个分界点，分界点前是Dalvik模式，主要操作libdvm下与dex相关的函数来获取起始地址，分界点后是art模式，通过libart下openmemory函数进行调试。</p>
+<p>分别贴一个讲的相对细致的文章：</p>
+<p>Dalvik：<a href="http://www.520monkey.com/archives/806" target="_blank" rel="noopener">http://www.520monkey.com/archives/806</a></p>
+<p>Art：<a href="https://www.cnblogs.com/ichunqiu/p/8618815.html" target="_blank" rel="noopener">https://www.cnblogs.com/ichunqiu/p/8618815.html</a></p>
+<h3 id="动态调试"><a href="#动态调试" class="headerlink" title="动态调试"></a>动态调试</h3><p>IDA+adb，通过android_server开启手机端口，转发后在ida中attach到进程，可以直接断点调试汇编代码，修改二进制达到绕过模拟器检测和反调试检测等。上面文章内也都有提到，感谢耐心整理，我也可以省下不少事直接拿来记录。</p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>整体看下来呢，双端的逆向上各有难点，iOS由于受苹果管制，只要是上架的App，都只有官方的一种壳，所以砸壳相对多样的安卓加固会简单一些，但同样由于官方的把控，如果不是专门搞这一方向，砸壳操作在其他大佬还没有把最新版本研究出来的情况下，软硬件版本限制也多些。</p>
+<p>砸壳后来看，安卓基本就能看到大部分业务代码了，顶多就是加些混淆增加阅读难度，如果是native方法可以动态调试so文件修改二进制，但毕竟都是能看得到的代码；iOS的话基本就是拿到头文件，还有一些方法能拿到伪代码，通过方法名参数名动态注入可以大致猜到逻辑。</p>
+<p>所以觉得还是安卓更简单，并且这块还是相对敏感的，学习为主。年轻人耗子尾汁/手动滑稽</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div id="donation_div"></div>
+
+<script src="/js/vdonate.js"></script>
+<script>
+var a = new Donate({
+  title: '如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作!', // 可选参数，打赏标题
+  btnText: 'Donate', // 可选参数，打赏按钮文字
+  el: document.getElementById('donation_div'),
+  wechatImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/WXQR.png',
+  alipayImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/AliQR.jpg'
+});
+</script>
+      
+      
+      <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>Post author:  </strong>Yshen
+          </li>
+          <li class="post-copyright-link">
+          <strong>Post link:  </strong>
+          <a href="/2020/11/12/Decomplie2/" target="_blank" title="Decomplie2">http://yshen.me/2020/11/12/Decomplie2/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>Copyright Notice:   </strong>
+            All articles in this blog are licensed under <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            unless stating additionally.
+          </li>
+         
+        </ul>
+<div>
+</div></div>
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+      
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/08/02/http-s-server/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">使用Boost实现Http(s)服务端</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="toc-sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS逆向基本流程"><span class="nav-number">1.</span> <span class="nav-text">iOS逆向基本流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#砸壳"><span class="nav-number">1.1.</span> <span class="nav-text">砸壳</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dump头文件"><span class="nav-number">1.2.</span> <span class="nav-text">Dump头文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注入调试"><span class="nav-number">1.3.</span> <span class="nav-text">注入调试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android一些小补充"><span class="nav-number">2.</span> <span class="nav-text">Android一些小补充</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#砸壳-1"><span class="nav-number">2.1.</span> <span class="nav-text">砸壳</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态调试"><span class="nav-number">2.2.</span> <span class="nav-text">动态调试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后"><span class="nav-number">3.</span> <span class="nav-text">最后</span></a></li></ol>
+    
+    </div>
+  </aside>
+
+</section>
+        
+      </div>
+      
+      <footer id="footer">
+  
+
+  <div class="container">
+      	<div class="row">
+	      <p> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></p>
+	      <p id="copyRightEn">Copyright &copy; 2018 - 2020 Yshen&#39;s  Blog All Rights Reserved.</p>
+	      
+	      
+    		<p class="busuanzi_uv">
+				UV : <span id="busuanzi_value_site_uv"></span> |  
+				PV : <span id="busuanzi_value_site_pv"></span>
+		    </p>
+  		   
+		</div>
+
+		
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+    var allheader = document.getElementById("allheader");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight + "px";
+    if (allheader != null) {
+      contentdiv.style.minHeight = document.body.offsetHeight - allheader.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    } else {
+      contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    }
+</script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <div class="ribbon">
+<a href="https://github.com/Yyyyshen">Fork me on GitHub</a>
+</div>
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+
+
+
+
+  <script src="/js/dialog.js"></script>
+
+
+
+
+
+
+
+
+	<div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+
+  </div>
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="myModalLabel">设置</h2>
+      </div>
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+
+
+      <div class="modal-body">
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" onclick="javascript:setFontSize();" aria-expanded="true" aria-controls="collapseOne">
+              正文字号大小
+            </a>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+          <div class="panel-body">
+            您已调整页面字体大小
+          </div>
+        </div>
+      
+
+
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" onclick="javascript:setBackground();" aria-expanded="true" aria-controls="collapseTwo">
+              夜间护眼模式
+            </a>
+        </div>
+          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+          <div class="panel-body">
+            夜间模式已经开启，再次单击按钮即可关闭 
+          </div>
+        </div>
+
+        <div>
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关 于&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+        </div>
+         <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+          <div class="panel-body">
+            Yshen&#39;s  Blog
+          </div>
+          <div class="panel-body">
+            Copyright © 2020 Yshen All Rights Reserved.
+          </div>
+        </div>
+      </div>
+
+
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <div class="modal-footer">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+  
+    <a id="menu-switch"><i class="fa fa-bars fa-lg"></i></a>
+  
+</body>
+</html>
