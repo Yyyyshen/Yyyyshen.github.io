@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>用托盘处理控制台程序显隐 | Yshen&#39;s  Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="Win">
+  
+  
+  
+  
+  <meta name="description" content="近期有任务写一个Windows服务，要求可以没有界面，但要能看到运行情况，并可以缩小在后台运行。对MFC还不够熟悉，又比较懒不想再用C#封一遍，干脆写成控制台程序+托盘图标应用，实现点击托盘可显隐控制台窗体，右键菜单退出。 直接上代码折腾的时间加上碰到的各种坑，可以说是比写一个窗体程序花的时间还要长了，但也算是有收获，解决各种问题的过程和心路历程都放在注释里了。 12345678910111213">
+<meta name="keywords" content="Win">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用托盘处理控制台程序显隐">
+<meta property="og:url" content="http://yshen.me/2020/12/09/win-tray/index.html">
+<meta property="og:site_name" content="Yshen&#39;s  Blog">
+<meta property="og:description" content="近期有任务写一个Windows服务，要求可以没有界面，但要能看到运行情况，并可以缩小在后台运行。对MFC还不够熟悉，又比较懒不想再用C#封一遍，干脆写成控制台程序+托盘图标应用，实现点击托盘可显隐控制台窗体，右键菜单退出。 直接上代码折腾的时间加上碰到的各种坑，可以说是比写一个窗体程序花的时间还要长了，但也算是有收获，解决各种问题的过程和心路历程都放在注释里了。 12345678910111213">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-12-09T16:11:29.847Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用托盘处理控制台程序显隐">
+<meta name="twitter:description" content="近期有任务写一个Windows服务，要求可以没有界面，但要能看到运行情况，并可以缩小在后台运行。对MFC还不够熟悉，又比较懒不想再用C#封一遍，干脆写成控制台程序+托盘图标应用，实现点击托盘可显隐控制台窗体，右键菜单退出。 直接上代码折腾的时间加上碰到的各种坑，可以说是比写一个窗体程序花的时间还要长了，但也算是有收获，解决各种问题的过程和心路历程都放在注释里了。 12345678910111213">
+  
+    <link rel="alternate" href="/atom.xml" title="Yshen&#39;s  Blog" type="application/atom+xml">
+  
+
+  
+
+  <link rel="icon" href="/css/images/mylogo.jpg">
+  <link rel="apple-touch-icon" href="/css/images/mylogo.jpg">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="/js/jquery-3.1.1.min.js"></script>
+  <script src="/js/bootstrap.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css">
+
+  
+    <link rel="stylesheet" href="/css/dialog.css">
+  
+
+  
+
+  
+    <link rel="stylesheet" href="/css/header-post.css">
+  
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/vdonate.css">
+  
+
+</head>
+</html>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+  <div id="container">
+    <div id="wrap">
+      
+        <header>
+
+    <div id="allheader" class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="navbar-inner">
+          
+          <div class="container"> 
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            
+              <a class="brand" style="
+                 margin-top: 0px;" href="#" data-toggle="modal" data-target="#myModal">
+                  <img width="124px" height="124px" alt="Hike News" src="/css/images/mylogo.jpg">
+              </a>
+            
+            
+            <div class="navbar-collapse collapse">
+              <ul class="hnav navbar-nav">
+                
+                  <li> <a class="main-nav-link" href="/">Home</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/archives">Archives</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/categories">Categories</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/tags">Tags</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/about">About</a> </li>
+                
+                  <li><div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div></li>
+            </ul></div>
+          </div>
+                
+      </div>
+    </div>
+
+</header>
+
+
+
+      
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-win-tray" style="width: 75%; float:left;" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div id="articleInner" class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      用托盘处理控制台程序显隐
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2020/12/09/win-tray/" class="article-date">
+	  <time datetime="2020-12-09T15:49:49.000Z" itemprop="datePublished">2020-12-09</time>
+	</a>
+
+      
+    <a class="article-category-link" href="/categories/C/">C++</a>
+
+      
+	<a class="article-views">
+	<span id="busuanzi_container_page_pv">
+		PV:<span id="busuanzi_value_page_pv"></span>
+	</span>
+	</a>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>近期有任务写一个Windows服务，要求可以没有界面，但要能看到运行情况，并可以缩小在后台运行。对MFC还不够熟悉，又比较懒不想再用C#封一遍，干脆写成控制台程序+托盘图标应用，实现点击托盘可显隐控制台窗体，右键菜单退出。</p>
+<h2 id="直接上代码"><a href="#直接上代码" class="headerlink" title="直接上代码"></a>直接上代码</h2><p>折腾的时间加上碰到的各种坑，可以说是比写一个窗体程序花的时间还要长了，但也算是有收获，解决各种问题的过程和心路历程都放在注释里了。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> isDisplay = <span class="literal">false</span>;<span class="comment">//默认隐藏控制台</span></span><br><span class="line">HMENU hmenu;<span class="comment">//托盘右键菜单，初始化要放全局</span></span><br><span class="line">NOTIFYICONDATA nid;<span class="comment">//托盘句柄</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//托盘图标事件回调</span></span><br><span class="line"><span class="function">LRESULT CALLBACK <span class="title">WndProc</span><span class="params">(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	POINT pt;<span class="comment">//用于接收鼠标坐标</span></span><br><span class="line">	<span class="keyword">int</span> opt;<span class="comment">//用于接收菜单选项返回值</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">switch</span> (message)</span><br><span class="line">	&#123;</span><br><span class="line">	<span class="keyword">case</span> WM_CREATE:</span><br><span class="line">		<span class="comment">//初始化NOTIFYICONDATA结构  </span></span><br><span class="line">		nid.cbSize = <span class="keyword">sizeof</span>(NOTIFYICONDATA);</span><br><span class="line">		nid.hWnd = hwnd;<span class="comment">//这里句柄不是控制台，而是依赖于空窗体，直接依赖控制台的话，不知道怎么注册事件回调</span></span><br><span class="line">		nid.uID = <span class="number">0</span>;</span><br><span class="line">		nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;</span><br><span class="line">		nid.uCallbackMessage = WM_USER;</span><br><span class="line">		nid.hIcon = LoadIcon(GetModuleHandle(<span class="number">0</span>), MAKEINTRESOURCE(IDI_ICON2));</span><br><span class="line">		wcscpy_s(nid.szTip, make_text(<span class="number">0</span>)); </span><br><span class="line">		Shell_NotifyIcon(NIM_ADD, &amp;nid);</span><br><span class="line">		<span class="comment">//提工右键菜单退出</span></span><br><span class="line">		hmenu = CreatePopupMenu();</span><br><span class="line">		AppendMenu(hmenu, MF_STRING, TRAY_MENU_EXIT, _T(<span class="string">"退出"</span>));</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">case</span> WM_USER:</span><br><span class="line">		<span class="keyword">if</span> (lParam == WM_LBUTTONDOWN) &#123;</span><br><span class="line">			<span class="keyword">if</span> (isDisplay) &#123;</span><br><span class="line">				ShowWindow(GetConsoleWindow(), SW_HIDE);</span><br><span class="line">				isDisplay = <span class="literal">false</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span> &#123;</span><br><span class="line">				ShowWindow(GetConsoleWindow(), SW_SHOW);</span><br><span class="line">				isDisplay = <span class="literal">true</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (lParam == WM_RBUTTONDOWN)</span><br><span class="line">		&#123;</span><br><span class="line">			GetCursorPos(&amp;pt);<span class="comment">//取鼠标坐标</span></span><br><span class="line">			SetForegroundWindow(hwnd);<span class="comment">//解决在菜单外单击左键菜单不消失的问题</span></span><br><span class="line">			opt = TrackPopupMenu(hmenu, TPM_RETURNCMD, pt.x, pt.y, <span class="literal">NULL</span>, hwnd, <span class="literal">NULL</span>);<span class="comment">//显示菜单并获取选项ID</span></span><br><span class="line">			<span class="keyword">if</span> (opt == TRAY_MENU_EXIT) &#123;</span><br><span class="line">				<span class="keyword">auto</span> ret = MessageBox(hwnd, _T(<span class="string">"确认退出？"</span>), FORM_NAME, MB_OKCANCEL | MB_ICONQUESTION);</span><br><span class="line">				<span class="keyword">if</span> (IDOK == ret) &#123;</span><br><span class="line">					SendMessage(hwnd, WM_CLOSE, wParam, lParam);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> (opt == <span class="number">0</span>)</span><br><span class="line">				PostMessage(hwnd, WM_LBUTTONDOWN, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">case</span> WM_DESTROY:</span><br><span class="line">		Shell_NotifyIcon(NIM_DELETE, &amp;nid);</span><br><span class="line">		PostQuitMessage(<span class="number">0</span>);</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> DefWindowProc(hwnd, message, wParam, lParam);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">BOOL WINAPI <span class="title">ConsoleHandler</span><span class="params">(DWORD CEvent)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//不做设置的话只有鼠标滑过才会消失</span></span><br><span class="line">	<span class="keyword">switch</span> (CEvent)</span><br><span class="line">	&#123;</span><br><span class="line">	<span class="keyword">case</span> CTRL_BREAK_EVENT:</span><br><span class="line">		Shell_NotifyIcon(NIM_DELETE, &amp;nid);</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> CTRL_CLOSE_EVENT:</span><br><span class="line">		Shell_NotifyIcon(NIM_DELETE, &amp;nid);</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> CTRL_SHUTDOWN_EVENT:</span><br><span class="line">		Shell_NotifyIcon(NIM_DELETE, &amp;nid);</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建托盘图标</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">CreateTray</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	MSG          msg;</span><br><span class="line">	WNDCLASS     wndclass;</span><br><span class="line">	<span class="comment">//若句柄已经存在则提示正在运行，防止多次打开</span></span><br><span class="line">	HWND handle = FindWindow(<span class="literal">NULL</span>, CONSOLE_NAME);</span><br><span class="line">	<span class="keyword">if</span> (handle != <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		MessageBox(<span class="literal">NULL</span>, TEXT(<span class="string">"服务正在运行中！"</span>), FORM_NAME, MB_ICONERROR);</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//设置窗体属性</span></span><br><span class="line">	wndclass.style = CS_HREDRAW | CS_VREDRAW;</span><br><span class="line">	wndclass.lpfnWndProc = WndProc;</span><br><span class="line">	wndclass.cbClsExtra = <span class="number">0</span>;</span><br><span class="line">	wndclass.cbWndExtra = <span class="number">0</span>;</span><br><span class="line">	wndclass.hInstance = <span class="number">0</span>;</span><br><span class="line">	wndclass.hIcon = LoadIcon(GetModuleHandle(<span class="number">0</span>), MAKEINTRESOURCE(IDI_ICON1));</span><br><span class="line">	wndclass.hCursor = LoadCursor(<span class="literal">NULL</span>, IDC_ARROW);</span><br><span class="line">	wndclass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);</span><br><span class="line">	wndclass.lpszMenuName = <span class="literal">NULL</span>;</span><br><span class="line">	wndclass.lpszClassName = FORM_NAME;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (!RegisterClass(&amp;wndclass))</span><br><span class="line">	&#123;</span><br><span class="line">		MessageBox(<span class="literal">NULL</span>, TEXT(<span class="string">"This program requires Windows NT!"</span>),</span><br><span class="line">			FORM_NAME, MB_ICONERROR);</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//创建一个空窗体用来创建托盘及事件回调,不知道有没有方法能直接处理控制台</span></span><br><span class="line">	CreateWindowEx(WS_EX_TOOLWINDOW,</span><br><span class="line">		FORM_NAME, FORM_NAME,</span><br><span class="line">		WS_POPUP,</span><br><span class="line">		CW_USEDEFAULT,</span><br><span class="line">		CW_USEDEFAULT,</span><br><span class="line">		CW_USEDEFAULT,</span><br><span class="line">		CW_USEDEFAULT,</span><br><span class="line">		<span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">	HWND console = GetConsoleWindow(); <span class="comment">//获取控制台窗口句柄</span></span><br><span class="line">	SetConsoleTitle(CONSOLE_NAME);  <span class="comment">//设置控制台窗体名称</span></span><br><span class="line">	SetConsoleCtrlHandler(ConsoleHandler, TRUE);<span class="comment">//设置下控制台关闭事件，主动销毁托盘图标</span></span><br><span class="line">	ShowWindow(console, SW_HIDE);		<span class="comment">//默认隐藏控制台</span></span><br><span class="line">	UpdateWindow(console);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (GetMessage(&amp;msg, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="number">0</span>))</span><br><span class="line">	&#123;</span><br><span class="line">		TranslateMessage(&amp;msg);</span><br><span class="line">		DispatchMessage(&amp;msg);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="可继续改进"><a href="#可继续改进" class="headerlink" title="可继续改进"></a>可继续改进</h2><p>本质上，托盘还是依赖于了一个空窗体句柄，没有找到比较完美的能直接给控制台句柄添加事件回调的方式，虽然处理了控制台关闭等事件，但并不能处理托盘图标点击事件。估计HOOK方式是可以的，并且这里就可以直接hook控制台，处理最小化和关闭都为隐藏，完全由托盘图标控制关闭，不过目前达到了我的需求，就只做到了上面这一步，控制台按钮还都是原本的功能。</p>
+<p>本以为一个简单的功能，在有参考的情况下还是折腾了小半天，记录一下加深印象。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div id="donation_div"></div>
+
+<script src="/js/vdonate.js"></script>
+<script>
+var a = new Donate({
+  title: '如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作!', // 可选参数，打赏标题
+  btnText: 'Donate', // 可选参数，打赏按钮文字
+  el: document.getElementById('donation_div'),
+  wechatImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/WXQR.png',
+  alipayImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/AliQR.jpg'
+});
+</script>
+      
+      
+      <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>Post author:  </strong>Yshen
+          </li>
+          <li class="post-copyright-link">
+          <strong>Post link:  </strong>
+          <a href="/2020/12/09/win-tray/" target="_blank" title="用托盘处理控制台程序显隐">http://yshen.me/2020/12/09/win-tray/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>Copyright Notice:   </strong>
+            All articles in this blog are licensed under <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            unless stating additionally.
+          </li>
+         
+        </ul>
+<div>
+</div></div>
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+      
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/11/12/Decomplie2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">逆向补充</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="toc-sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#直接上代码"><span class="nav-number">1.</span> <span class="nav-text">直接上代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可继续改进"><span class="nav-number">2.</span> <span class="nav-text">可继续改进</span></a></li></ol>
+    
+    </div>
+  </aside>
+
+</section>
+        
+      </div>
+      
+      <footer id="footer">
+  
+
+  <div class="container">
+      	<div class="row">
+	      <p> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></p>
+	      <p id="copyRightEn">Copyright &copy; 2018 - 2020 Yshen&#39;s  Blog All Rights Reserved.</p>
+	      
+	      
+    		<p class="busuanzi_uv">
+				UV : <span id="busuanzi_value_site_uv"></span> |  
+				PV : <span id="busuanzi_value_site_pv"></span>
+		    </p>
+  		   
+		</div>
+
+		
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+    var allheader = document.getElementById("allheader");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight + "px";
+    if (allheader != null) {
+      contentdiv.style.minHeight = document.body.offsetHeight - allheader.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    } else {
+      contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    }
+</script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <div class="ribbon">
+<a href="https://github.com/Yyyyshen">Fork me on GitHub</a>
+</div>
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+
+
+
+
+  <script src="/js/dialog.js"></script>
+
+
+
+
+
+
+
+
+	<div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+
+  </div>
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="myModalLabel">设置</h2>
+      </div>
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+
+
+      <div class="modal-body">
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" onclick="javascript:setFontSize();" aria-expanded="true" aria-controls="collapseOne">
+              正文字号大小
+            </a>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+          <div class="panel-body">
+            您已调整页面字体大小
+          </div>
+        </div>
+      
+
+
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" onclick="javascript:setBackground();" aria-expanded="true" aria-controls="collapseTwo">
+              夜间护眼模式
+            </a>
+        </div>
+          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+          <div class="panel-body">
+            夜间模式已经开启，再次单击按钮即可关闭 
+          </div>
+        </div>
+
+        <div>
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关 于&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+        </div>
+         <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+          <div class="panel-body">
+            Yshen&#39;s  Blog
+          </div>
+          <div class="panel-body">
+            Copyright © 2020 Yshen All Rights Reserved.
+          </div>
+        </div>
+      </div>
+
+
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <div class="modal-footer">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+  
+    <a id="menu-switch"><i class="fa fa-bars fa-lg"></i></a>
+  
+</body>
+</html>
