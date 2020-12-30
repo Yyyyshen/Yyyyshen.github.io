@@ -3,7 +3,7 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>使用boost写网络模块（待施工） | Yshen&#39;s  Blog</title>
+  <title>使用boost写网络模块 | Yshen&#39;s  Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   <meta name="keywords" content="Boost">
@@ -11,18 +11,18 @@
   
   
   
-  <meta name="description" content="用Boost写各种网络项目也有一段时间了，遇到了很多坑，对网络这块也有了一定的理解，甚至遇到过一个（可能是）官方的死锁BUG，等有时间还是要整理一下。">
+  <meta name="description" content="用Boost写各种网络项目也有一段时间了，遇到了很多坑，对网络这块也有了一定的理解，甚至遇到过一个（可能是）官方的死锁BUG，等有时间还是要整理一下。  问题描述公司项目使用asio作为基本网络框架，基本业务完成之后遇到了性能瓶颈；测试环境为48核64G的Windows服务器，使用多台机器做大量并发访问的压力测试；在Http协议测试中，性能十分可观，但当测试SSL，并发量连一万都上不了。 最开始">
 <meta name="keywords" content="Boost">
 <meta property="og:type" content="article">
-<meta property="og:title" content="使用Boost写网络模块（待施工）">
+<meta property="og:title" content="使用Boost写网络模块">
 <meta property="og:url" content="http://yshen.me/2020/12/10/net-asio/index.html">
 <meta property="og:site_name" content="Yshen&#39;s  Blog">
-<meta property="og:description" content="用Boost写各种网络项目也有一段时间了，遇到了很多坑，对网络这块也有了一定的理解，甚至遇到过一个（可能是）官方的死锁BUG，等有时间还是要整理一下。">
+<meta property="og:description" content="用Boost写各种网络项目也有一段时间了，遇到了很多坑，对网络这块也有了一定的理解，甚至遇到过一个（可能是）官方的死锁BUG，等有时间还是要整理一下。  问题描述公司项目使用asio作为基本网络框架，基本业务完成之后遇到了性能瓶颈；测试环境为48核64G的Windows服务器，使用多台机器做大量并发访问的压力测试；在Http协议测试中，性能十分可观，但当测试SSL，并发量连一万都上不了。 最开始">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2020-12-09T16:21:09.578Z">
+<meta property="og:updated_time" content="2020-12-30T03:44:18.076Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="使用Boost写网络模块（待施工）">
-<meta name="twitter:description" content="用Boost写各种网络项目也有一段时间了，遇到了很多坑，对网络这块也有了一定的理解，甚至遇到过一个（可能是）官方的死锁BUG，等有时间还是要整理一下。">
+<meta name="twitter:title" content="使用Boost写网络模块">
+<meta name="twitter:description" content="用Boost写各种网络项目也有一段时间了，遇到了很多坑，对网络这块也有了一定的理解，甚至遇到过一个（可能是）官方的死锁BUG，等有时间还是要整理一下。  问题描述公司项目使用asio作为基本网络框架，基本业务完成之后遇到了性能瓶颈；测试环境为48核64G的Windows服务器，使用多台机器做大量并发访问的压力测试；在Http协议测试中，性能十分可观，但当测试SSL，并发量连一万都上不了。 最开始">
   
     <link rel="alternate" href="/atom.xml" title="Yshen&#39;s  Blog" type="application/atom+xml">
   
@@ -169,7 +169,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      使用Boost写网络模块（待施工）
+      使用Boost写网络模块
     </h1>
   
 
@@ -194,7 +194,30 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>用Boost写各种网络项目也有一段时间了，遇到了很多坑，对网络这块也有了一定的理解，甚至遇到过一个（可能是）官方的死锁BUG，等有时间还是要整理一下。</p>
+        <font color="#D3D3D3"> 用Boost写各种网络项目也有一段时间了，遇到了很多坑，对网络这块也有了一定的理解，甚至遇到过一个（可能是）官方的死锁BUG，等有时间还是要整理一下。</font>
+
+<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>公司项目使用asio作为基本网络框架，基本业务完成之后遇到了性能瓶颈；测试环境为48核64G的Windows服务器，使用多台机器做大量并发访问的压力测试；在Http协议测试中，性能十分可观，但当测试SSL，并发量连一万都上不了。</p>
+<p>最开始的时候其实测试结果更加惨淡，做了一些功课，除了代码中做一些设置，例如对socket进行配置：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">boost::system::error_code ec;</span><br><span class="line"><span class="keyword">static</span> boost::asio::ip::tcp::<span class="function">no_delay <span class="title">no_delay</span><span class="params">(<span class="literal">true</span>)</span></span>;</span><br><span class="line">socket.set_option(no_delay, ec);</span><br><span class="line">socket.set_option(boost::asio::socket_base::linger(<span class="literal">true</span>, <span class="number">0</span>), ec);</span><br><span class="line">socket.set_option(boost::asio::socket_base::reuse_address(<span class="literal">true</span>), ec);</span><br></pre></td></tr></table></figure>
+<p>修改系统注册表项，突破一些系统限制：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Windows Registry Editor Version 5.00</span><br><span class="line"></span><br><span class="line">[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\Tcpip\Parameters]</span><br><span class="line">&quot;MaxUserPort&quot;=dword:0000fffd</span><br><span class="line">&quot;TcpNumConnections&quot;=dword:00fffffe</span><br><span class="line">&quot;MaxFreeTcbs&quot;=dword:00016000</span><br><span class="line">&quot;MaxHashTableSize&quot;=dword:00065536</span><br><span class="line">&quot;TcpTimeWaitDelay&quot;=dword:00000002</span><br><span class="line">&quot;TCPFinWait2Delay&quot;=dword:00000002</span><br></pre></td></tr></table></figure>
+<p>这些配置防止了一些最基本的例如<code>TIME_WAIT</code>类型的问题发生。</p>
+<p>不过并发量并不是真正的问题点，而是压力达到一定程度后，并发量达到一个瓶颈（我们测试大概为7000左右）之后，accept不再工作，现象就是端口死了，telnet连不通，只有当所有连接全部释放，句柄为0时，accept又复活开始接收连接。</p>
+<p>我们在排查问题过程中，尝试了很多网络框架，比如libevent/poco/hpsocket等，虽然同条件下并发量并不理想，SSL可能只有2~3k，但并不会出现死端口现象。只要部署足够多的机器做负载均衡，至少可以保证业务不出问题。</p>
+<p>但毕竟是需要考虑成本的，所以这个问题不得不去解决，一开始认为我们对Asio理解不够，使用方法不当，或者代码有bug；甚至用了最笨的办法，一个个模块去注释掉做测试，最后发现，即使是用官方最基本的异步服务端例子去测试，也会遇到同样的问题，我们就开始怀疑是潜在的死锁。</p>
+<p>我们做出这样的怀疑也有一定的依据，首先，现象十分有规律性，测试中观察资源管理器的句柄数，总是在达到一个瓶颈值时，就不再接收连接，只有当所有句柄回收，才能恢复（其实到这里我们有想过，能够恢复的话，说是死锁也不太准确），这就导致每次达到最大并发时，会有几秒钟的回收空档期，这在业务中是不允许的；并且，在整个测试过程中，代码中是没有任何错误发生的；最后，我们发现，原来为了最大限度发挥系统资源作用，是多线程去run <code>io_service</code>，如果改为单线程就不会发生这个情况，所以我们觉得可能是asio的问题。</p>
+<p>之后我们去了官方提issue，具体记录见链接：</p>
+<p><a href="https://github.com/boostorg/beast/issues/2114" target="_blank" rel="noopener">https://github.com/boostorg/beast/issues/2114</a></p>
+<h2 id="最后结果"><a href="#最后结果" class="headerlink" title="最后结果"></a>最后结果</h2><p>考虑到boost各模块的issue回复活跃度，我们选择了在beast中去提这个问题，虽然官方大佬们认为这个问题应该属于asio，但毕竟我们也是在使用beast过程中发现，并且也是基于asio的封装，他们还是愿意帮我们去还原场景做测试，可惜的是我们并没能劝说对方使用相同的windows环境做测试，只发现在linux下，在对系统做优化后，是不会发生这个情况的。</p>
+<p>由于这个问题解决也实在花费了大量的时间和精力，产品上线也很急，所以我们也改为了使用linux服务器；并且，同样去asio模块提了issue，暂时没有回复。</p>
+<p>虽然最终没有解决Windows这边的问题，也不是毫无收获，在解决问题中，也了解到Linux的一些配置问题，包括代码中做的设置，有的即使写了，但如果不改系统参数，同样是以系统参数为准的，代码中的部分就等于没生效，比如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">acceptor_.listen(<span class="number">64000</span>);</span><br></pre></td></tr></table></figure>
+<p>这里不管写多大，在系统默认参数中是128，不修改的话就不能生效。参见：</p>
+<p><a href="https://linux.die.net/man/2/listen" target="_blank" rel="noopener">https://linux.die.net/man/2/listen</a></p>
+<p>对于服务器配置，也查到IBM的手册，做一些调优；</p>
+<p><a href="https://www.ibm.com/support/knowledgecenter/zh/SSAW57_9.0.5/com.ibm.websphere.nd.multiplatform.doc/ae/tprf_tuneopsys.html" target="_blank" rel="noopener">https://www.ibm.com/support/knowledgecenter/zh/SSAW57_9.0.5/com.ibm.websphere.nd.multiplatform.doc/ae/tprf_tuneopsys.html</a></p>
+<p>在这个过程中，我们也推测，Windows中应该也是有一些我们还不知道的系统配置项，没能正确做出修改。折腾了很久，又因为时差关系，经常要半夜才能有跟官方在issue中交流的机会。</p>
+<p>至少现在产品也能够正常使用了，也算是有一个好结果。</p>
 
       
     </div>
@@ -221,7 +244,7 @@ var a = new Donate({
           </li>
           <li class="post-copyright-link">
           <strong>Post link:  </strong>
-          <a href="/2020/12/10/net-asio/" target="_blank" title="使用Boost写网络模块（待施工）">http://yshen.me/2020/12/10/net-asio/</a>
+          <a href="/2020/12/10/net-asio/" target="_blank" title="使用Boost写网络模块">http://yshen.me/2020/12/10/net-asio/</a>
           </li>
           <li class="post-copyright-license">
             <strong>Copyright Notice:   </strong>
@@ -267,10 +290,19 @@ var a = new Donate({
     
 <nav id="article-nav">
   
+    <a href="/2020/12/24/file-trans/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          使用Asio进行文件传输
+        
+      </div>
+    </a>
   
-    <a href="/2020/12/10/win-res-load/" id="article-nav-older" class="article-nav-link-wrap">
+  
+    <a href="/2020/12/09/win-tray/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Windows下内置资源的使用（待施工）</div>
+      <div class="article-nav-title">用托盘处理控制台程序显隐</div>
     </a>
   
 </nav>
@@ -284,7 +316,7 @@ var a = new Donate({
     <div id="toc" class="toc-article">
     <strong class="toc-title">Contents</strong>
     
-        <ol class="nav">None</ol>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后结果"><span class="nav-number">2.</span> <span class="nav-text">最后结果</span></a></li></ol>
     
     </div>
   </aside>

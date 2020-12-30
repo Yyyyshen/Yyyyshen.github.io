@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>使用asio进行文件传输 | Yshen&#39;s  Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="Boost">
+  
+  
+  
+  
+  <meta name="description" content="近期实现了一个简单的文件同步工具，用boost::asio进行的网络通信，定义了tcp协议头，发送消息使用了队列机制，用fstream进行文件读写。练练手。 几个知识点搭建基本框架时觉得有几个值得记录的地方。 协议头定义1234567891011121314#pragma  pack (push,1)struct ProtocolHead&amp;#123;	uint32_t pack_size; //包">
+<meta name="keywords" content="Boost">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Asio进行文件传输">
+<meta property="og:url" content="http://yshen.me/2020/12/24/file-trans/index.html">
+<meta property="og:site_name" content="Yshen&#39;s  Blog">
+<meta property="og:description" content="近期实现了一个简单的文件同步工具，用boost::asio进行的网络通信，定义了tcp协议头，发送消息使用了队列机制，用fstream进行文件读写。练练手。 几个知识点搭建基本框架时觉得有几个值得记录的地方。 协议头定义1234567891011121314#pragma  pack (push,1)struct ProtocolHead&amp;#123;	uint32_t pack_size; //包">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-12-30T09:19:21.148Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Asio进行文件传输">
+<meta name="twitter:description" content="近期实现了一个简单的文件同步工具，用boost::asio进行的网络通信，定义了tcp协议头，发送消息使用了队列机制，用fstream进行文件读写。练练手。 几个知识点搭建基本框架时觉得有几个值得记录的地方。 协议头定义1234567891011121314#pragma  pack (push,1)struct ProtocolHead&amp;#123;	uint32_t pack_size; //包">
+  
+    <link rel="alternate" href="/atom.xml" title="Yshen&#39;s  Blog" type="application/atom+xml">
+  
+
+  
+
+  <link rel="icon" href="/css/images/mylogo.jpg">
+  <link rel="apple-touch-icon" href="/css/images/mylogo.jpg">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="/js/jquery-3.1.1.min.js"></script>
+  <script src="/js/bootstrap.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.css">
+
+  
+    <link rel="stylesheet" href="/css/dialog.css">
+  
+
+  
+
+  
+    <link rel="stylesheet" href="/css/header-post.css">
+  
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/vdonate.css">
+  
+
+</head>
+</html>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  
+  <div id="container">
+    <div id="wrap">
+      
+        <header>
+
+    <div id="allheader" class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="navbar-inner">
+          
+          <div class="container"> 
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            
+              <a class="brand" style="
+                 margin-top: 0px;" href="#" data-toggle="modal" data-target="#myModal">
+                  <img width="124px" height="124px" alt="Hike News" src="/css/images/mylogo.jpg">
+              </a>
+            
+            
+            <div class="navbar-collapse collapse">
+              <ul class="hnav navbar-nav">
+                
+                  <li> <a class="main-nav-link" href="/">Home</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/archives">Archives</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/categories">Categories</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/tags">Tags</a> </li>
+                
+                  <li> <a class="main-nav-link" href="/about">About</a> </li>
+                
+                  <li><div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div></li>
+            </ul></div>
+          </div>
+                
+      </div>
+    </div>
+
+</header>
+
+
+
+      
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-file-trans" style="width: 75%; float:left;" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div id="articleInner" class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      使用Asio进行文件传输
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2020/12/24/file-trans/" class="article-date">
+	  <time datetime="2020-12-24T14:48:13.000Z" itemprop="datePublished">2020-12-24</time>
+	</a>
+
+      
+    <a class="article-category-link" href="/categories/C/">C++</a>
+
+      
+	<a class="article-views">
+	<span id="busuanzi_container_page_pv">
+		PV:<span id="busuanzi_value_page_pv"></span>
+	</span>
+	</a>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>近期实现了一个简单的文件同步工具，用boost::asio进行的网络通信，定义了tcp协议头，发送消息使用了队列机制，用fstream进行文件读写。练练手。</p>
+<h2 id="几个知识点"><a href="#几个知识点" class="headerlink" title="几个知识点"></a>几个知识点</h2><p>搭建基本框架时觉得有几个值得记录的地方。</p>
+<h3 id="协议头定义"><a href="#协议头定义" class="headerlink" title="协议头定义"></a>协议头定义</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span>  pack (push,1)</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ProtocolHead</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">uint32_t</span> pack_size; <span class="comment">//包大小</span></span><br><span class="line">	<span class="comment">//...其他自定义</span></span><br><span class="line">&#125;; </span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ProtocolEx</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	ProtocolHead head;</span><br><span class="line">	<span class="keyword">uint32_t</span> session;</span><br><span class="line">    <span class="comment">//...其他自定义</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> pack(pop)</span></span><br></pre></td></tr></table></figure>
+<p>在网络协议编程中，经常会处理不同协议的数据报文。一种方法是通过指针偏移的方法来得到各种信息，但这样做不仅编程复杂，而且一旦协议有变化，程序修改起来也比较麻烦。在了解了编译器对结构空间的分配原则之后，我们完全可以利用这一特性定义自己的协议结构，通过访问结构的成员来获取各种信息。这样做，不仅简化了编程，而且即使协议发生变化，我们也只需修改协议结构的定义即可。</p>
+<p>对于<code>#pragma pack</code>：</p>
+<p>这是给编译器用的参数设置，有关结构体字节对齐方式设置， #pragma pack是指定数据在内存中的对齐方式。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> pack (n)       作用：C编译器将按照n个字节对齐。</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> pack ()        作用：取消自定义字节对齐方式。</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span>  pack (push,1)   作用：是指把原来对齐方式设置压栈，并设新的对齐方式设置为一个字节对齐</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> pack(pop)      作用：恢复对齐状态</span></span><br></pre></td></tr></table></figure>
+<p>因此可见，加入push和pop可以使对齐恢复到原来状态，而不是编译器默认，可以说后者更优，但是很多时候两者差别不大。</p>
+<p>这里强制按照1字节进行对齐，可以理解成所有的内容都是按照1字节进行读取，其他所有的数据成员都是1字节的整数倍，所以也就不用进行内存对齐，各个成员在内存中就按照实际顺序进行排列。这样既节省空间，又利于控制。</p>
+<h3 id="读定长"><a href="#读定长" class="headerlink" title="读定长"></a>读定长</h3><p>定义好协议头，就可以严格按照约定进行定长读写，逻辑清晰，并且不需要像使用read_some一样处理复杂的粘包情况。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">ProtocolHead head_;</span><br><span class="line"><span class="keyword">void</span> Session::do_read_head()</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">auto</span> <span class="title">self</span><span class="params">(shared_from_this())</span></span>;</span><br><span class="line">	head_ = &#123;  &#125;;</span><br><span class="line">	boost::asio::async_read(socket_, boost::asio::buffer(&amp;head_, <span class="keyword">sizeof</span>(ProtocolHead)),</span><br><span class="line">		[<span class="keyword">this</span>, self](<span class="keyword">const</span> boost::system::error_code&amp; ec, <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="comment">/*bytes_transferred*/</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> (ec)</span><br><span class="line">			&#123;</span><br><span class="line">				do_eof();</span><br><span class="line">				<span class="keyword">return</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">//对头进行一些验证操作</span></span><br><span class="line">			<span class="comment">//...</span></span><br><span class="line">            <span class="comment">//头合格，读体</span></span><br><span class="line">			do_read_body();</span><br><span class="line">		&#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Session::do_read_body()</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">auto</span> <span class="title">self</span><span class="params">(shared_from_this())</span></span>;</span><br><span class="line">	<span class="comment">//读取包头内容</span></span><br><span class="line">	<span class="keyword">uint32_t</span> size_ = head_.pack_size;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt; buffer_;<span class="comment">//使用vector代替字节数组，更灵活些</span></span><br><span class="line">	buffer_.resize(buffer_size);</span><br><span class="line">	<span class="comment">//读定长</span></span><br><span class="line">	boost::asio::async_read(socket_, boost::asio::buffer(&amp;buffer_[<span class="number">0</span>], buffer_.size()),</span><br><span class="line">		[<span class="keyword">this</span>, self](<span class="keyword">const</span> boost::system::error_code&amp; ec, <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="comment">/*bytes_transferred*/</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> (ec)</span><br><span class="line">			&#123;</span><br><span class="line">				do_eof();</span><br><span class="line">				<span class="keyword">return</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">//读完后续工作</span></span><br><span class="line">			<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">		&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="发送队列"><a href="#发送队列" class="headerlink" title="发送队列"></a>发送队列</h3><p>为了将读文件和发数据过程分割，两个过程进行节奏肯定是不一样的，多次同时调用async_write会出问题，所以维护一个队列来发送。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> Buffers = <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt;;</span><br><span class="line">boost::mutex send_list_mutex_;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">list</span>&lt;Buffers&gt; send_list_;</span><br><span class="line"><span class="comment">//发送队列</span></span><br><span class="line"><span class="keyword">void</span> EchoSession::send_data(Buffers&amp;&amp; buff)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span> (buff.size() == <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//这里有个问题，只有这样折腾一次，才能够释放掉参数buff，还没搞懂怎么回事</span></span><br><span class="line">	<span class="keyword">auto</span> temp_buff = <span class="built_in">std</span>::move(buff);</span><br><span class="line">	send_list_mutex_.lock();</span><br><span class="line">	send_list_.push_back(<span class="built_in">std</span>::move(temp_buff));</span><br><span class="line">	<span class="comment">//这里是判断是否有写任务正在进行</span></span><br><span class="line">	<span class="keyword">if</span> (send_list_.size() &gt; <span class="number">1</span>) &#123;</span><br><span class="line">		send_list_mutex_.unlock();</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	send_list_mutex_.unlock();</span><br><span class="line">	do_write();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//写操作</span></span><br><span class="line"><span class="keyword">void</span> EchoSession::do_write()</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">auto</span> <span class="title">self</span><span class="params">(shared_from_this())</span></span>;</span><br><span class="line">    <span class="comment">//自动锁，可以自己定义一个原子锁放进去，这里直接用了boost的锁</span></span><br><span class="line">	<span class="built_in">std</span>::lock_guard&lt;boost::mutex&gt;lock(send_list_mutex_);</span><br><span class="line">	<span class="keyword">if</span> (send_list_.empty()) &#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//从队列头开始写</span></span><br><span class="line">	boost::asio::async_write(socket_, boost::asio::buffer(send_list_.front()),</span><br><span class="line">		[<span class="keyword">this</span>, self](<span class="keyword">const</span> boost::system::error_code&amp; ec, <span class="built_in">std</span>::<span class="keyword">size_t</span> length) &#123;</span><br><span class="line">			<span class="keyword">if</span> (ec)</span><br><span class="line">			&#123;</span><br><span class="line">				do_eof();</span><br><span class="line">				<span class="keyword">return</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">//写完判断队列是否为空，不为空则继续</span></span><br><span class="line">			send_list_mutex_.lock();</span><br><span class="line">			send_list_.pop_front();</span><br><span class="line">			<span class="keyword">if</span> (!send_list_.empty()) &#123;</span><br><span class="line">				send_list_mutex_.unlock();</span><br><span class="line">				do_write();</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span> &#123;</span><br><span class="line">				send_list_mutex_.unlock();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="下一步"><a href="#下一步" class="headerlink" title="下一步"></a>下一步</h2><p>后面可以对功能进行扩展，比如客户端在固定时间段（空闲时间）进行同步任务、一次任务是否完成，重试多次、服务端对客户端连接进行管理等。其实这样功能的现成软件很多，积累些经验。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div id="donation_div"></div>
+
+<script src="/js/vdonate.js"></script>
+<script>
+var a = new Donate({
+  title: '如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作!', // 可选参数，打赏标题
+  btnText: 'Donate', // 可选参数，打赏按钮文字
+  el: document.getElementById('donation_div'),
+  wechatImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/WXQR.png',
+  alipayImage: 'https://raw.githubusercontent.com/Yyyyshen/Yyyyshen.github.io/master/css/images/AliQR.jpg'
+});
+</script>
+      
+      
+      <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>Post author:  </strong>Yshen
+          </li>
+          <li class="post-copyright-link">
+          <strong>Post link:  </strong>
+          <a href="/2020/12/24/file-trans/" target="_blank" title="使用Asio进行文件传输">http://yshen.me/2020/12/24/file-trans/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>Copyright Notice:   </strong>
+            All articles in this blog are licensed under <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            unless stating additionally.
+          </li>
+         
+        </ul>
+<div>
+</div></div>
+      
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+
+      
+      
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/12/24/hack-tech/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          黑客技术学习
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/12/10/net-asio/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">使用Boost写网络模块</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="toc-sidebar">
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">Contents</strong>
+    
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#几个知识点"><span class="nav-number">1.</span> <span class="nav-text">几个知识点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#协议头定义"><span class="nav-number">1.1.</span> <span class="nav-text">协议头定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#读定长"><span class="nav-number">1.2.</span> <span class="nav-text">读定长</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#发送队列"><span class="nav-number">1.3.</span> <span class="nav-text">发送队列</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下一步"><span class="nav-number">2.</span> <span class="nav-text">下一步</span></a></li></ol>
+    
+    </div>
+  </aside>
+
+</section>
+        
+      </div>
+      
+      <footer id="footer">
+  
+
+  <div class="container">
+      	<div class="row">
+	      <p> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></p>
+	      <p id="copyRightEn">Copyright &copy; 2018 - 2020 Yshen&#39;s  Blog All Rights Reserved.</p>
+	      
+	      
+    		<p class="busuanzi_uv">
+				UV : <span id="busuanzi_value_site_uv"></span> |  
+				PV : <span id="busuanzi_value_site_pv"></span>
+		    </p>
+  		   
+		</div>
+
+		
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var wrapdiv = document.getElementById("wrap");
+    var contentdiv = document.getElementById("content");
+    var allheader = document.getElementById("allheader");
+
+    wrapdiv.style.minHeight = document.body.offsetHeight + "px";
+    if (allheader != null) {
+      contentdiv.style.minHeight = document.body.offsetHeight - allheader.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    } else {
+      contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("footer").offsetHeight + "px";
+    }
+</script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    <div class="ribbon">
+<a href="https://github.com/Yyyyshen">Fork me on GitHub</a>
+</div>
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+
+
+
+
+  <script src="/js/dialog.js"></script>
+
+
+
+
+
+
+
+
+	<div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+	</script>
+
+
+
+
+
+
+
+  </div>
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="myModalLabel">设置</h2>
+      </div>
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+
+
+      <div class="modal-body">
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" onclick="javascript:setFontSize();" aria-expanded="true" aria-controls="collapseOne">
+              正文字号大小
+            </a>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+          <div class="panel-body">
+            您已调整页面字体大小
+          </div>
+        </div>
+      
+
+
+          <div style="margin:6px;">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" onclick="javascript:setBackground();" aria-expanded="true" aria-controls="collapseTwo">
+              夜间护眼模式
+            </a>
+        </div>
+          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+          <div class="panel-body">
+            夜间模式已经开启，再次单击按钮即可关闭 
+          </div>
+        </div>
+
+        <div>
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关 于&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+        </div>
+         <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+          <div class="panel-body">
+            Yshen&#39;s  Blog
+          </div>
+          <div class="panel-body">
+            Copyright © 2020 Yshen All Rights Reserved.
+          </div>
+        </div>
+      </div>
+
+
+      <hr style="margin-top:0px; margin-bottom:0px; width:80%; border-top: 1px solid #000;">
+      <hr style="margin-top:2px; margin-bottom:0px; width:80%; border-top: 3px solid #000;">
+      <div class="modal-footer">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+  
+    <a id="menu-switch"><i class="fa fa-bars fa-lg"></i></a>
+  
+</body>
+</html>

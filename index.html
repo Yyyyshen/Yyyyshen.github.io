@@ -303,6 +303,111 @@
         
           <section id="main" style="float:none;">
   
+    <article id="post-hack-tech" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div id="articleInner" class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2020/12/24/hack-tech/">黑客技术学习</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2020/12/24/hack-tech/" class="article-date">
+	  <time datetime="2020-12-24T14:48:28.000Z" itemprop="datePublished">2020-12-24</time>
+	</a>
+
+      
+    <a class="article-category-link" href="/categories/C/">C++</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p class="article-excerpt-content">
+          有可能需要做攻防对抗，研究下Windows内核编程和一些基本的黑客技术。照着《Windows黑客编程技术详解》的例子敲一敲。
+目前一直在下面的项目中跟进：
+https://github.com/Yyyyshen/HackTechLearning
+
+        </p>
+        <p class="article-more-link">
+          <a href="/2020/12/24/hack-tech/#more">Read More</a>
+        </p>
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+
+  
+    <article id="post-file-trans" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div id="articleInner" class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2020/12/24/file-trans/">使用Asio进行文件传输</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2020/12/24/file-trans/" class="article-date">
+	  <time datetime="2020-12-24T14:48:13.000Z" itemprop="datePublished">2020-12-24</time>
+	</a>
+
+      
+    <a class="article-category-link" href="/categories/C/">C++</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p class="article-excerpt-content">
+          近期实现了一个简单的文件同步工具，用boost::asio进行的网络通信，定义了tcp协议头，发送消息使用了队列机制，用fstream进行文件读写。练练手。
+几个知识点搭建基本框架时觉得有几个值得记录的地方。
+协议头定义1234567891011121314#pragma  pack (push,1)struct ProtocolHead&#123;	uint32_t pack_size; //包大小	//...其他自定义&#125;; struct ProtocolEx&#123;	Pr...
+        </p>
+        <p class="article-more-link">
+          <a href="/2020/12/24/file-trans/#more">Read More</a>
+        </p>
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+
+  
     <article id="post-net-asio" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div id="articleInner" class="article-inner">
     
@@ -311,7 +416,7 @@
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2020/12/10/net-asio/">使用Boost写网络模块（待施工）</a>
+      <a class="article-title" href="/2020/12/10/net-asio/">使用Boost写网络模块</a>
     </h1>
   
 
@@ -331,62 +436,14 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p class="article-excerpt-content">
-          用Boost写各种网络项目也有一段时间了，遇到了很多坑，对网络这块也有了一定的理解，甚至遇到过一个（可能是）官方的死锁BUG，等有时间还是要整理一下。
+           用Boost写各种网络项目也有一段时间了，遇到了很多坑，对网络这块也有了一定的理解，甚至遇到过一个（可能是）官方的死锁BUG，等有时间还是要整理一下。
 
+问题描述公司项目使用asio作为基本网络框架，基本业务完成之后遇到了性能瓶颈；测试环境为48核64G的Windows服务器，使用多台机器做大量并发访问的压力测试；在Http协议测试中，性能十分可观，但当测试SSL，并发量连一万都上不了。
+最开始的时候其实测试结果更加惨淡，做了一些功课，除了代码中做一些设置，例如对socket进行配置：
+...
         </p>
         <p class="article-more-link">
           <a href="/2020/12/10/net-asio/#more">Read More</a>
-        </p>
-      
-    </div>
-    <footer class="article-footer">
-      
-      
-      
-      
-
-    </footer>
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-
-  
-    <article id="post-win-res-load" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div id="articleInner" class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2020/12/10/win-res-load/">Windows下内置资源的使用（待施工）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2020/12/10/win-res-load/" class="article-date">
-	  <time datetime="2020-12-09T16:17:48.000Z" itemprop="datePublished">2020-12-10</time>
-	</a>
-
-      
-    <a class="article-category-link" href="/categories/C/">C++</a>
-
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p class="article-excerpt-content">
-          转c++之后每天都会有新的收获，各种可能业内老生常谈的骚操作对我来说都很新奇，尤其是Windows下，几乎无所不能，印象里exe就是一个启动器，加载各种文件，后来知道原来都是可以从资源中加载出来的，似乎病毒木马也都是这种机制来写。最近的项目也都接触到了这种操作，只恨自己接触这方面太晚，觉得c++越来越有意思了。
-
-        </p>
-        <p class="article-more-link">
-          <a href="/2020/12/10/win-res-load/#more">Read More</a>
         </p>
       
     </div>
@@ -761,57 +818,6 @@ python，运行一些脚本时会用到，不过我需求不高。
         </p>
         <p class="article-more-link">
           <a href="/2019/01/27/Decomplie/#more">Read More</a>
-        </p>
-      
-    </div>
-    <footer class="article-footer">
-      
-      
-      
-      
-
-    </footer>
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-
-  
-    <article id="post-SOTY" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div id="articleInner" class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2018/12/31/SOTY/">年终总结——我的2018</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2018/12/31/SOTY/" class="article-date">
-	  <time datetime="2018-12-30T16:27:34.000Z" itemprop="datePublished">2018-12-31</time>
-	</a>
-
-      
-    <a class="article-category-link" href="/categories/Daily/">Daily</a>
-
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p class="article-excerpt-content">
-          上半年——在坑中挣扎过完年，很多人没有回学校，大四下半年的安排是实习，我也像其他同学一样，选择了直接去往一个城市找工作。现在想想这个地方还是不太合适的，当时只觉得有兄弟在，可以先方便的蹭吃蹭住，等工作后的周末还能一起嗨，仿佛很完美。因为在校内，也许表现的算是不错吧，跟老师各种做项目，几乎所有人都认为我随便就能找个还行的工作，导致最后连我自己都这样认为，一切都计划得太顺利。带着这样天真的想法，我拿上行李，去了南京，也是我险些崩溃的开始。
-对比了一下大家投简历的经验，也没什么辨认能力，就选择了...
-        </p>
-        <p class="article-more-link">
-          <a href="/2018/12/31/SOTY/#more">Read More</a>
         </p>
       
     </div>
